@@ -1,4 +1,4 @@
-package osin
+package oauthlib
 
 import (
 	"net/http"
@@ -8,8 +8,8 @@ import (
 
 func TestAuthorizeCode(t *testing.T) {
 	sconfig := NewServerConfig()
-	sconfig.AllowedAuthorizeTypes = AllowedAuthorizeType{CODE}
-	server := NewServer(sconfig, NewTestingStorage())
+	sconfig.AllowedAuthorizeRequestTypes = []AuthorizeRequestType{CODE}
+	server := NewServer(sconfig, NewTestingStorage(t))
 	server.AuthorizeTokenGen = &TestingAuthorizeTokenGen{}
 	resp := server.NewResponse()
 
@@ -37,7 +37,7 @@ func TestAuthorizeCode(t *testing.T) {
 		t.Fatalf("Should not be an error")
 	}
 
-	if resp.Type != REDIRECT {
+	if resp.ResponseType != REDIRECT {
 		t.Fatalf("Response should be a redirect")
 	}
 
@@ -48,8 +48,8 @@ func TestAuthorizeCode(t *testing.T) {
 
 func TestAuthorizeToken(t *testing.T) {
 	sconfig := NewServerConfig()
-	sconfig.AllowedAuthorizeTypes = AllowedAuthorizeType{TOKEN}
-	server := NewServer(sconfig, NewTestingStorage())
+	sconfig.AllowedAuthorizeRequestTypes = []AuthorizeRequestType{TOKEN}
+	server := NewServer(sconfig, NewTestingStorage(t))
 	server.AuthorizeTokenGen = &TestingAuthorizeTokenGen{}
 	server.AccessTokenGen = &TestingAccessTokenGen{}
 	resp := server.NewResponse()
@@ -78,7 +78,7 @@ func TestAuthorizeToken(t *testing.T) {
 		t.Fatalf("Should not be an error")
 	}
 
-	if resp.Type != REDIRECT || !resp.RedirectInFragment {
+	if resp.ResponseType != REDIRECT || !resp.RedirectInFragment {
 		t.Fatalf("Response should be a redirect with fragment")
 	}
 

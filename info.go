@@ -1,14 +1,14 @@
-package osin
+package oauthlib
 
 import (
 	"net/http"
 	"time"
 )
 
-// InfoRequest is a request for information about some AccessData
+// InfoRequest is a request for information about some AccessGrant
 type InfoRequest struct {
-	Code       string      // Code to look up
-	AccessData *AccessData // AccessData associated with Code
+	Code        string       // Code to look up
+	AccessGrant *AccessGrant // AccessGrant associated with Code
 }
 
 // HandleInfoRequest is an http.HandlerFunc for server information
@@ -34,25 +34,25 @@ func (s *Server) HandleInfoRequest(w *Response, r *http.Request) *InfoRequest {
 	var err error
 
 	// load access data
-	ret.AccessData, err = w.Storage.LoadAccess(ret.Code)
+	ret.AccessGrant, err = w.Storage.LoadAccessGrant(ret.Code)
 	if err != nil {
 		w.SetError(E_INVALID_REQUEST, "")
 		w.InternalError = err
 		return nil
 	}
-	if ret.AccessData == nil {
+	if ret.AccessGrant == nil {
 		w.SetError(E_INVALID_REQUEST, "")
 		return nil
 	}
-	if ret.AccessData.Client == nil {
+	if ret.AccessGrant.Client == nil {
 		w.SetError(E_UNAUTHORIZED_CLIENT, "")
 		return nil
 	}
-	if ret.AccessData.Client.GetRedirectUri() == "" {
+	if ret.AccessGrant.Client.GetRedirectURI() == "" {
 		w.SetError(E_UNAUTHORIZED_CLIENT, "")
 		return nil
 	}
-	if ret.AccessData.IsExpiredAt(s.Now()) {
+	if ret.AccessGrant.IsExpiredAt(s.Now()) {
 		w.SetError(E_INVALID_GRANT, "")
 		return nil
 	}
@@ -68,14 +68,14 @@ func (s *Server) FinishInfoRequest(w *Response, r *http.Request, ir *InfoRequest
 	}
 
 	// output data
-	w.Output["client_id"] = ir.AccessData.Client.GetId()
-	w.Output["access_token"] = ir.AccessData.AccessToken
+	w.Output["client_id"] = ir.AccessGrant.Client.GetId()
+	w.Output["access_token"] = ir.AccessGrant.AccessToken
 	w.Output["token_type"] = s.Config.TokenType
-	w.Output["expires_in"] = ir.AccessData.CreatedAt.Add(time.Duration(ir.AccessData.ExpiresIn)*time.Second).Sub(s.Now()) / time.Second
-	if ir.AccessData.RefreshToken != "" {
-		w.Output["refresh_token"] = ir.AccessData.RefreshToken
+	w.Output["expires_in"] = ir.AccessGrant.CreatedAt.Add(time.Duration(ir.AccessGrant.ExpiresIn)*time.Second).Sub(s.Now()) / time.Second
+	if ir.AccessGrant.RefreshToken != "" {
+		w.Output["refresh_token"] = ir.AccessGrant.RefreshToken
 	}
-	if ir.AccessData.Scope != "" {
-		w.Output["scope"] = ir.AccessData.Scope
+	if ir.AccessGrant.Scope != "" {
+		w.Output["scope"] = ir.AccessGrant.Scope
 	}
 }

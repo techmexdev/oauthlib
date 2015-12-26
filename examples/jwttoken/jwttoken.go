@@ -5,11 +5,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/RangelReale/osin"
-	"github.com/RangelReale/osin/example"
-	"github.com/dgrijalva/jwt-go"
 	"net/http"
 	"net/url"
+
+	"github.com/dgrijalva/jwt-go"
+
+	"github.com/knq/oauthlib"
+	"github.com/knq/oauthlib/examples/oauthlibtest"
 )
 
 // JWT access token generator
@@ -18,7 +20,7 @@ type AccessTokenGenJWT struct {
 	PublicKey  []byte
 }
 
-func (c *AccessTokenGenJWT) GenerateAccessToken(data *osin.AccessData, generaterefresh bool) (accesstoken string, refreshtoken string, err error) {
+func (c *AccessTokenGenJWT) GenerateAccessToken(data *oauthlib.AccessGrant, generaterefresh bool) (accesstoken string, refreshtoken string, err error) {
 	// generate JWT access token
 	token := jwt.New(jwt.GetSigningMethod("RS256"))
 	token.Claims["cid"] = data.Client.GetId()
@@ -47,7 +49,7 @@ func (c *AccessTokenGenJWT) GenerateAccessToken(data *osin.AccessData, generater
 }
 
 func main() {
-	server := osin.NewServer(osin.NewServerConfig(), example.NewTestStorage())
+	server := oauthlib.NewServer(oauthlib.NewServerConfig(), oauthlibtest.NewTestStorage())
 	server.AccessTokenGen = &AccessTokenGenJWT{privatekey, publickey}
 
 	// Authorization code endpoint
@@ -56,7 +58,7 @@ func main() {
 		defer resp.Close()
 
 		if ar := server.HandleAuthorizeRequest(resp, r); ar != nil {
-			if !example.HandleLoginPage(ar, w, r) {
+			if !oauthlibtest.HandleLoginPage(ar, w, r) {
 				return
 			}
 			ar.Authorized = true
@@ -65,7 +67,7 @@ func main() {
 		if resp.IsError && resp.InternalError != nil {
 			fmt.Printf("ERROR: %s\n", resp.InternalError)
 		}
-		osin.OutputJSON(resp, w, r)
+		oauthlib.WriteJSON(w, resp)
 	})
 
 	// Access token endpoint
@@ -80,7 +82,7 @@ func main() {
 		if resp.IsError && resp.InternalError != nil {
 			fmt.Printf("ERROR: %s\n", resp.InternalError)
 		}
-		osin.OutputJSON(resp, w, r)
+		oauthlib.WriteJSON(w, resp)
 	})
 
 	// Information endpoint
@@ -91,7 +93,7 @@ func main() {
 		if ir := server.HandleInfoRequest(resp, r); ir != nil {
 			server.FinishInfoRequest(resp, r, ir)
 		}
-		osin.OutputJSON(resp, w, r)
+		oauthlib.WriteJSON(w, resp)
 	})
 
 	// Application home endpoint
@@ -124,8 +126,8 @@ func main() {
 
 		// if parse, download and parse json
 		if r.Form.Get("doparse") == "1" {
-			err := example.DownloadAccessToken(fmt.Sprintf("http://localhost:14000%s", aurl),
-				&osin.BasicAuth{"1234", "aabbccdd"}, jr)
+			err := oauthlibtest.DownloadAccessToken(fmt.Sprintf("http://localhost:14000%s", aurl),
+				&oauthlib.BasicAuth{"1234", "aabbccdd"}, jr)
 			if err != nil {
 				w.Write([]byte(err.Error()))
 				w.Write([]byte("<br/>"))

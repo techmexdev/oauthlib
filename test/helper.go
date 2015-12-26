@@ -1,25 +1,30 @@
-package example
+package oauthlibtest
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/RangelReale/osin"
 	"net/http"
 	"net/url"
+
+	"github.com/knq/oauthlib"
 )
 
-func HandleLoginPage(ar *osin.AuthorizeRequest, w http.ResponseWriter, r *http.Request) bool {
+func HandleLoginPage(ar *oauthlib.AuthorizeRequest, w http.ResponseWriter, r *http.Request) bool {
 	r.ParseForm()
 	if r.Method == "POST" && r.Form.Get("login") == "test" && r.Form.Get("password") == "test" {
 		return true
 	}
 
 	w.Write([]byte("<html><body>"))
-
 	w.Write([]byte(fmt.Sprintf("LOGIN %s (use test/test)<br/>", ar.Client.GetId())))
-	w.Write([]byte(fmt.Sprintf("<form action=\"/authorize?response_type=%s&client_id=%s&state=%s&redirect_uri=%s\" method=\"POST\">",
-		ar.Type, ar.Client.GetId(), ar.State, url.QueryEscape(ar.RedirectUri))))
+	w.Write([]byte(fmt.Sprintf(
+		"<form action=\"/authorize?response_type=%s&client_id=%s&state=%s&redirect_uri=%s\" method=\"POST\">",
+		ar.Type,
+		ar.Client.GetId(),
+		ar.State,
+		url.QueryEscape(ar.RedirectURI),
+	)))
 
 	w.Write([]byte("Login: <input type=\"text\" name=\"login\" /><br/>"))
 	w.Write([]byte("Password: <input type=\"password\" name=\"password\" /><br/>"))
@@ -32,7 +37,7 @@ func HandleLoginPage(ar *osin.AuthorizeRequest, w http.ResponseWriter, r *http.R
 	return false
 }
 
-func DownloadAccessToken(url string, auth *osin.BasicAuth, output map[string]interface{}) error {
+func DownloadAccessToken(url string, auth *oauthlib.BasicAuth, out map[string]interface{}) error {
 	// download access token
 	preq, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -48,11 +53,10 @@ func DownloadAccessToken(url string, auth *osin.BasicAuth, output map[string]int
 		return err
 	}
 
-	if presp.StatusCode != 200 {
+	if presp.StatusCode != http.StatusOK {
 		return errors.New("Invalid status code")
 	}
 
 	jdec := json.NewDecoder(presp.Body)
-	err = jdec.Decode(&output)
-	return err
+	return jdec.Decode(&out)
 }

@@ -1,4 +1,4 @@
-package osin
+package oauthlib
 
 import (
 	"encoding/base64"
@@ -26,7 +26,7 @@ type AccessTokenGenDefault struct {
 }
 
 // GenerateAccessToken generates base64-encoded UUID access and refresh tokens
-func (a *AccessTokenGenDefault) GenerateAccessToken(data *AccessData, generaterefresh bool) (accesstoken string, refreshtoken string, err error) {
+func (a *AccessTokenGenDefault) GenerateAccessToken(data *AccessGrant, generaterefresh bool) (accesstoken string, refreshtoken string, err error) {
 	token := uuid.NewRandom()
 	accesstoken = removePadding(base64.URLEncoding.EncodeToString([]byte(token)))
 

@@ -1,7 +1,8 @@
-package osin
+package oauthlib
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strings"
@@ -48,6 +49,7 @@ func CheckBearerAuth(r *http.Request) *BearerAuth {
 	if authHeader == "" && authForm == "" {
 		return nil
 	}
+
 	token := authForm
 	if authHeader != "" {
 		s := strings.SplitN(authHeader, " ", 2)
@@ -89,4 +91,38 @@ func getClientAuth(w *Response, r *http.Request, allowQueryParams bool) *BasicAu
 		return nil
 	}
 	return auth
+}
+
+// WriteJSON encodes the Response to JSON and writes to the http.ResponseWriter
+func WriteJSON(w http.ResponseWriter, rs *Response) error {
+	// Add headers
+	for i, k := range rs.Headers {
+		for _, v := range k {
+			w.Header().Add(i, v)
+		}
+	}
+
+	if rs.ResponseType == REDIRECT {
+		// Output redirect with parameters
+		u, err := rs.GetRedirectUrl()
+		if err != nil {
+			return err
+		}
+		w.Header().Add("Location", u)
+		w.WriteHeader(302)
+	} else {
+		// set content type if the response doesn't already have one associated with it
+		if w.Header().Get("Content-Type") == "" {
+			w.Header().Set("Content-Type", "application/json")
+		}
+		w.WriteHeader(rs.StatusCode)
+
+		encoder := json.NewEncoder(w)
+		err := encoder.Encode(rs.Output)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

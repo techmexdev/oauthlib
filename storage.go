@@ -1,49 +1,42 @@
-package osin
-
-import ()
+package oauthlib
 
 // Storage interface
 type Storage interface {
-	// Clone the storage if needed. For example, using mgo, you can clone the session with session.Clone
-	// to avoid concurrent access problems.
-	// This is to avoid cloning the connection at each method access.
-	// Can return itself if not a problem.
-	Clone() Storage
-
-	// Close the resources the Storage potentially holds (using Clone for example)
-	Close()
-
 	// GetClient loads the client by id (client_id)
 	GetClient(id string) (Client, error)
 
-	// SaveAuthorize saves authorize data.
-	SaveAuthorize(*AuthorizeData) error
+	// SaveAuthorizeData saves the AuthorizeData to storage.
+	SaveAuthorizeData(*AuthorizeData) error
 
-	// LoadAuthorize looks up AuthorizeData by a code.
+	// LoadAuthorizeData retrieves AuthorizeData by a code.
+	//
 	// Client information MUST be loaded together.
 	// Optionally can return error if expired.
-	LoadAuthorize(code string) (*AuthorizeData, error)
+	LoadAuthorizeData(code string) (*AuthorizeData, error)
 
 	// RemoveAuthorize revokes or deletes the authorization code.
-	RemoveAuthorize(code string) error
+	RemoveAuthorizeData(code string) error
 
-	// SaveAccess writes AccessData.
+	// SaveAccessGrant saves AccessGrant to storage.
+	//
 	// If RefreshToken is not blank, it must save in a way that can be loaded using LoadRefresh.
-	SaveAccess(*AccessData) error
+	SaveAccessGrant(*AccessGrant) error
 
-	// LoadAccess retrieves access data by token. Client information MUST be loaded together.
-	// AuthorizeData and AccessData DON'T NEED to be loaded if not easily available.
+	// LoadAccessGrant retrieves access data by token. Client information MUST be loaded together.
+	//
+	// AuthorizeData and AccessGrant DON'T NEED to be loaded if not easily available.
 	// Optionally can return error if expired.
-	LoadAccess(token string) (*AccessData, error)
+	LoadAccessGrant(token string) (*AccessGrant, error)
 
-	// RemoveAccess revokes or deletes an AccessData.
-	RemoveAccess(token string) error
+	// RemoveAccess revokes or deletes an AccessGrant.
+	RemoveAccessGrant(token string) error
 
-	// LoadRefresh retrieves refresh AccessData. Client information MUST be loaded together.
-	// AuthorizeData and AccessData DON'T NEED to be loaded if not easily available.
+	// LoadRefreshGrant retrieves refresh AccessGrant. Client information MUST be loaded together.
+	//
+	// AuthorizeData and AccessGrant DON'T NEED to be loaded if not easily available.
 	// Optionally can return error if expired.
-	LoadRefresh(token string) (*AccessData, error)
+	LoadRefreshGrant(token string) (*AccessGrant, error)
 
-	// RemoveRefresh revokes or deletes refresh AccessData.
-	RemoveRefresh(token string) error
+	// RemoveRefreshGrant revokes or deletes refresh AccessGrant.
+	RemoveRefreshGrant(token string) error
 }

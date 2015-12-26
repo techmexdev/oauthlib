@@ -1,4 +1,4 @@
-package osin
+package oauthlib
 
 import (
 	"errors"
@@ -20,10 +20,10 @@ const (
 
 // Server response
 type Response struct {
-	Type               ResponseType
+	ResponseType       ResponseType
 	StatusCode         int
 	StatusText         string
-	ErrorStatusCode    int
+	HttpStatusCode     int
 	URL                string
 	Output             ResponseData
 	Headers            http.Header
@@ -38,13 +38,13 @@ type Response struct {
 
 func NewResponse(storage Storage) *Response {
 	r := &Response{
-		Type:            DATA,
-		StatusCode:      200,
-		ErrorStatusCode: 200,
-		Output:          make(ResponseData),
-		Headers:         make(http.Header),
-		IsError:         false,
-		Storage:         storage.Clone(),
+		ResponseType:   DATA,
+		StatusCode:     200,
+		HttpStatusCode: 200,
+		Output:         make(ResponseData),
+		Headers:        make(http.Header),
+		IsError:        false,
+		Storage:        storage,
 	}
 	r.Headers.Add(
 		"Cache-Control",
@@ -77,8 +77,8 @@ func (r *Response) SetErrorUri(id string, description string, uri string, state 
 	// set error parameters
 	r.IsError = true
 	r.ErrorId = id
-	r.StatusCode = r.ErrorStatusCode
-	if r.StatusCode != 200 {
+	r.StatusCode = r.HttpStatusCode
+	if r.StatusCode != http.StatusOK {
 		r.StatusText = description
 	} else {
 		r.StatusText = ""
@@ -97,7 +97,7 @@ func (r *Response) SetErrorUri(id string, description string, uri string, state 
 // SetErrorUri changes the response to redirect to the given url
 func (r *Response) SetRedirect(url string) {
 	// set redirect parameters
-	r.Type = REDIRECT
+	r.ResponseType = REDIRECT
 	r.URL = url
 }
 
@@ -108,7 +108,7 @@ func (r *Response) SetRedirectFragment(f bool) {
 
 // GetRedirectUrl returns the redirect url with all query string parameters
 func (r *Response) GetRedirectUrl() (string, error) {
-	if r.Type != REDIRECT {
+	if r.ResponseType != REDIRECT {
 		return "", errors.New("Not a redirect response")
 	}
 
@@ -133,8 +133,4 @@ func (r *Response) GetRedirectUrl() (string, error) {
 	}
 
 	return u.String(), nil
-}
-
-func (r *Response) Close() {
-	r.Storage.Close()
 }

@@ -1,4 +1,4 @@
-package osin
+package oauthlib
 
 // Client information
 type Client interface {
@@ -9,15 +9,15 @@ type Client interface {
 	GetSecret() string
 
 	// Base client uri
-	GetRedirectUri() string
+	GetRedirectURI() string
 
 	// Data to be passed to storage. Not used by the library.
 	GetUserData() interface{}
 }
 
-// ClientSecretMatcher is an optional interface clients can implement
-// which allows them to be the one to determine if a secret matches.
-// If a Client implements ClientSecretMatcher, the framework will never call GetSecret
+// ClientSecretMatcher is an optional interface clients can implement which
+// allows them to be the one to determine if a secret matches.  If a Client
+// implements ClientSecretMatcher, the framework will never call GetSecret
 type ClientSecretMatcher interface {
 	// SecretMatches returns true if the given secret matches
 	ClientSecretMatches(secret string) bool
@@ -27,7 +27,7 @@ type ClientSecretMatcher interface {
 type DefaultClient struct {
 	Id          string
 	Secret      string
-	RedirectUri string
+	RedirectURI string
 	UserData    interface{}
 }
 
@@ -39,8 +39,8 @@ func (d *DefaultClient) GetSecret() string {
 	return d.Secret
 }
 
-func (d *DefaultClient) GetRedirectUri() string {
-	return d.RedirectUri
+func (d *DefaultClient) GetRedirectURI() string {
+	return d.RedirectURI
 }
 
 func (d *DefaultClient) GetUserData() interface{} {
@@ -50,11 +50,4 @@ func (d *DefaultClient) GetUserData() interface{} {
 // Implement the ClientSecretMatcher interface
 func (d *DefaultClient) ClientSecretMatches(secret string) bool {
 	return d.Secret == secret
-}
-
-func (d *DefaultClient) CopyFrom(client Client) {
-	d.Id = client.GetId()
-	d.Secret = client.GetSecret()
-	d.RedirectUri = client.GetRedirectUri()
-	d.UserData = client.GetUserData()
 }

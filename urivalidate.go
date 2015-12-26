@@ -1,4 +1,4 @@
-package osin
+package oauthlib
 
 import (
 	"errors"
@@ -18,10 +18,10 @@ func newUriValidationError(msg string, base string, redirect string) UriValidati
 	return UriValidationError(fmt.Sprintf("%s: %s / %s", msg, base, redirect))
 }
 
-// ValidateUriList validates that redirectUri is contained in baseUriList.
+// ValidateUriList validates that redirectURI is contained in baseUriList.
 // baseUriList may be a string separated by separator.
 // If separator is blank, validate only 1 URI.
-func ValidateUriList(baseUriList string, redirectUri string, separator string) error {
+func ValidateUriList(baseUriList string, redirectURI string, separator string) error {
 	// make a list of uris
 	var slist []string
 	if separator != "" {
@@ -32,7 +32,7 @@ func ValidateUriList(baseUriList string, redirectUri string, separator string) e
 	}
 
 	for _, sitem := range slist {
-		err := ValidateUri(sitem, redirectUri)
+		err := ValidateUri(sitem, redirectURI)
 		// validated, return no error
 		if err == nil {
 			return nil
@@ -44,12 +44,12 @@ func ValidateUriList(baseUriList string, redirectUri string, separator string) e
 		}
 	}
 
-	return newUriValidationError("urls don't validate", baseUriList, redirectUri)
+	return newUriValidationError("urls don't validate", baseUriList, redirectURI)
 }
 
-// ValidateUri validates that redirectUri is contained in baseUri
-func ValidateUri(baseUri string, redirectUri string) error {
-	if baseUri == "" || redirectUri == "" {
+// ValidateUri validates that redirectURI is contained in baseUri
+func ValidateUri(baseUri string, redirectURI string) error {
+	if baseUri == "" || redirectURI == "" {
 		return errors.New("urls cannot be blank.")
 	}
 
@@ -60,7 +60,7 @@ func ValidateUri(baseUri string, redirectUri string) error {
 	}
 
 	// parse passed url
-	redirect, err := url.Parse(redirectUri)
+	redirect, err := url.Parse(redirectURI)
 	if err != nil {
 		return err
 	}
@@ -72,10 +72,10 @@ func ValidateUri(baseUri string, redirectUri string) error {
 
 	// check if urls match
 	if base.Scheme != redirect.Scheme {
-		return newUriValidationError("scheme mismatch", baseUri, redirectUri)
+		return newUriValidationError("scheme mismatch", baseUri, redirectURI)
 	}
 	if base.Host != redirect.Host {
-		return newUriValidationError("host mismatch", baseUri, redirectUri)
+		return newUriValidationError("host mismatch", baseUri, redirectURI)
 	}
 
 	// allow exact path matches
@@ -86,13 +86,13 @@ func ValidateUri(baseUri string, redirectUri string) error {
 	// ensure prefix matches are actually subpaths
 	requiredPrefix := strings.TrimRight(base.Path, "/") + "/"
 	if !strings.HasPrefix(redirect.Path, requiredPrefix) {
-		return newUriValidationError("path is not a subpath", baseUri, redirectUri)
+		return newUriValidationError("path is not a subpath", baseUri, redirectURI)
 	}
 
 	// ensure prefix matches don't contain path traversals
 	for _, s := range strings.Split(strings.TrimPrefix(redirect.Path, requiredPrefix), "/") {
 		if s == ".." {
-			return newUriValidationError("subpath cannot contain path traversal", baseUri, redirectUri)
+			return newUriValidationError("subpath cannot contain path traversal", baseUri, redirectURI)
 		}
 	}
 

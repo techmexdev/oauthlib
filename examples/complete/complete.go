@@ -5,20 +5,26 @@ package main
 
 import (
 	"fmt"
-	"github.com/RangelReale/osin"
-	"github.com/RangelReale/osin/example"
 	"net/http"
 	"net/url"
+
+	"github.com/knq/oauthlib"
+	"github.com/knq/oauthlib/examples/oauthlibtest"
 )
 
 func main() {
-	sconfig := osin.NewServerConfig()
-	sconfig.AllowedAuthorizeTypes = osin.AllowedAuthorizeType{osin.CODE, osin.TOKEN}
-	sconfig.AllowedAccessTypes = osin.AllowedAccessType{osin.AUTHORIZATION_CODE,
-		osin.REFRESH_TOKEN, osin.PASSWORD, osin.CLIENT_CREDENTIALS, osin.ASSERTION}
+	sconfig := oauthlib.NewServerConfig()
+	sconfig.AllowedAuthorizeRequestTypes = []oauthlib.AuthorizeRequestType{oauthlib.CODE, oauthlib.TOKEN}
+	sconfig.AllowedGrantTypes = []oauthlib.GrantType{
+		oauthlib.AuthorizationCodeGrant,
+		oauthlib.RefreshTokenGrant,
+		oauthlib.PasswordGrant,
+		oauthlib.ClientCredentialsGrant,
+		oauthlib.AssertionGrant,
+	}
 	sconfig.AllowGetAccessRequest = true
 	sconfig.AllowClientSecretInParams = true
-	server := osin.NewServer(sconfig, example.NewTestStorage())
+	server := oauthlib.NewServer(sconfig, oauthlibtest.NewTestStorage())
 
 	// Authorization code endpoint
 	http.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +32,7 @@ func main() {
 		defer resp.Close()
 
 		if ar := server.HandleAuthorizeRequest(resp, r); ar != nil {
-			if !example.HandleLoginPage(ar, w, r) {
+			if !oauthlibtest.HandleLoginPage(ar, w, r) {
 				return
 			}
 			ar.UserData = struct{ Login string }{Login: "test"}
@@ -39,7 +45,7 @@ func main() {
 		if !resp.IsError {
 			resp.Output["custom_parameter"] = 187723
 		}
-		osin.OutputJSON(resp, w, r)
+		oauthlib.WriteJSON(w, resp)
 	})
 
 	// Access token endpoint
@@ -48,19 +54,19 @@ func main() {
 		defer resp.Close()
 
 		if ar := server.HandleAccessRequest(resp, r); ar != nil {
-			switch ar.Type {
-			case osin.AUTHORIZATION_CODE:
+			switch ar.GrantType {
+			case oauthlib.AuthorizationCodeGrant:
 				ar.Authorized = true
-			case osin.REFRESH_TOKEN:
+			case oauthlib.RefreshTokenGrant:
 				ar.Authorized = true
-			case osin.PASSWORD:
+			case oauthlib.PasswordGrant:
 				if ar.Username == "test" && ar.Password == "test" {
 					ar.Authorized = true
 				}
-			case osin.CLIENT_CREDENTIALS:
+			case oauthlib.ClientCredentialsGrant:
 				ar.Authorized = true
-			case osin.ASSERTION:
-				if ar.AssertionType == "urn:osin.example.complete" && ar.Assertion == "osin.data" {
+			case oauthlib.AssertionGrant:
+				if ar.AssertionType == "urn:oauthlib.example.complete" && ar.Assertion == "oauthlib.data" {
 					ar.Authorized = true
 				}
 			}
@@ -72,7 +78,7 @@ func main() {
 		if !resp.IsError {
 			resp.Output["custom_parameter"] = 19923
 		}
-		osin.OutputJSON(resp, w, r)
+		oauthlib.WriteJSON(w, resp)
 	})
 
 	// Information endpoint
@@ -83,7 +89,7 @@ func main() {
 		if ir := server.HandleInfoRequest(resp, r); ir != nil {
 			server.FinishInfoRequest(resp, r, ir)
 		}
-		osin.OutputJSON(resp, w, r)
+		oauthlib.WriteJSON(w, resp)
 	})
 
 	// Application home endpoint
@@ -122,8 +128,8 @@ func main() {
 
 		// if parse, download and parse json
 		if r.Form.Get("doparse") == "1" {
-			err := example.DownloadAccessToken(fmt.Sprintf("http://localhost:14000%s", aurl),
-				&osin.BasicAuth{"1234", "aabbccdd"}, jr)
+			err := oauthlibtest.DownloadAccessToken(fmt.Sprintf("http://localhost:14000%s", aurl),
+				&oauthlib.BasicAuth{"1234", "aabbccdd"}, jr)
 			if err != nil {
 				w.Write([]byte(err.Error()))
 				w.Write([]byte("<br/>"))
@@ -188,8 +194,8 @@ func main() {
 			"test", "test")
 
 		// download token
-		err := example.DownloadAccessToken(fmt.Sprintf("http://localhost:14000%s", aurl),
-			&osin.BasicAuth{Username: "1234", Password: "aabbccdd"}, jr)
+		err := oauthlibtest.DownloadAccessToken(fmt.Sprintf("http://localhost:14000%s", aurl),
+			&oauthlib.BasicAuth{Username: "1234", Password: "aabbccdd"}, jr)
 		if err != nil {
 			w.Write([]byte(err.Error()))
 			w.Write([]byte("<br/>"))
@@ -233,8 +239,8 @@ func main() {
 		aurl := fmt.Sprintf("/token?grant_type=client_credentials")
 
 		// download token
-		err := example.DownloadAccessToken(fmt.Sprintf("http://localhost:14000%s", aurl),
-			&osin.BasicAuth{Username: "1234", Password: "aabbccdd"}, jr)
+		err := oauthlibtest.DownloadAccessToken(fmt.Sprintf("http://localhost:14000%s", aurl),
+			&oauthlib.BasicAuth{Username: "1234", Password: "aabbccdd"}, jr)
 		if err != nil {
 			w.Write([]byte(err.Error()))
 			w.Write([]byte("<br/>"))
@@ -275,11 +281,11 @@ func main() {
 		jr := make(map[string]interface{})
 
 		// build access code url
-		aurl := fmt.Sprintf("/token?grant_type=assertion&assertion_type=urn:osin.example.complete&assertion=osin.data")
+		aurl := fmt.Sprintf("/token?grant_type=assertion&assertion_type=urn:oauthlib.example.complete&assertion=oauthlib.data")
 
 		// download token
-		err := example.DownloadAccessToken(fmt.Sprintf("http://localhost:14000%s", aurl),
-			&osin.BasicAuth{Username: "1234", Password: "aabbccdd"}, jr)
+		err := oauthlibtest.DownloadAccessToken(fmt.Sprintf("http://localhost:14000%s", aurl),
+			&oauthlib.BasicAuth{Username: "1234", Password: "aabbccdd"}, jr)
 		if err != nil {
 			w.Write([]byte(err.Error()))
 			w.Write([]byte("<br/>"))
@@ -331,8 +337,8 @@ func main() {
 		aurl := fmt.Sprintf("/token?grant_type=refresh_token&refresh_token=%s", url.QueryEscape(code))
 
 		// download token
-		err := example.DownloadAccessToken(fmt.Sprintf("http://localhost:14000%s", aurl),
-			&osin.BasicAuth{Username: "1234", Password: "aabbccdd"}, jr)
+		err := oauthlibtest.DownloadAccessToken(fmt.Sprintf("http://localhost:14000%s", aurl),
+			&oauthlib.BasicAuth{Username: "1234", Password: "aabbccdd"}, jr)
 		if err != nil {
 			w.Write([]byte(err.Error()))
 			w.Write([]byte("<br/>"))
@@ -382,8 +388,8 @@ func main() {
 		aurl := fmt.Sprintf("/info?code=%s", url.QueryEscape(code))
 
 		// download token
-		err := example.DownloadAccessToken(fmt.Sprintf("http://localhost:14000%s", aurl),
-			&osin.BasicAuth{Username: "1234", Password: "aabbccdd"}, jr)
+		err := oauthlibtest.DownloadAccessToken(fmt.Sprintf("http://localhost:14000%s", aurl),
+			&oauthlib.BasicAuth{Username: "1234", Password: "aabbccdd"}, jr)
 		if err != nil {
 			w.Write([]byte(err.Error()))
 			w.Write([]byte("<br/>"))

@@ -1,4 +1,4 @@
-package osin
+package oauthlib
 
 type DefaultErrorId string
 

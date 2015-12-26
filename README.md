@@ -1,102 +1,27 @@
-OSIN
-====
+# About oauthlib [![Build Status](https://travis-ci.org/knq/oauthlib.svg)](https://travis-ci.org/knq/oauthlib) [![Coverage Status](https://coveralls.io/repos/knq/oauthlib/badge  .svg?branch=master&service=github)](https://coveralls.io/github/knq/oauthlib?branch=master) #
 
-[![GoDoc](https://godoc.org/github.com/RangelReale/osin?status.svg)](https://godoc.org/github.com/RangelReale/osin)
+Package oauthlib is a [Golang](https://golang.org/project) oauth2 server
+library. The library attempts to follow as many Go idioms as possible, and be
+compliant with the Oauth2.0 spec as specified in [RFC 6749](http://tools.ietf.org/html/rfc6749) 
+and in the [IETF specs](http://tools.ietf.org/html/draft-ietf-oauth-v2-10).
 
+The library handles the majority of the specification, such as authorization
+token endpoints, authorization codes, access grants such as implicit, and
+client credentials. Please see the [GoDoc](https://godoc.org/github.com/knq/oauthlib) 
+for a full API reference.
 
-Golang OAuth2 server library
-----------------------------
+oauthlib is a substanial rewrite from the original [osin](https://github.com/RangelReale/osin) 
+package. oauthlib aims to vastly simplify the original API, to better alighn
+the implementation with standard Go idioms, and to make better use of the Go
+standard library where possible.
 
-OSIN is an OAuth2 server library for the Go language, as specified at
-http://tools.ietf.org/html/rfc6749 and http://tools.ietf.org/html/draft-ietf-oauth-v2-10.
+## Installation ##
 
-Using it, you can build your own OAuth2 authentication service.
+Install the package via the following:
+  
+    go get -u github.com/knq/oauthmw
 
-The library implements the majority of the specification, like authorization and token endpoints, and authorization code, implicit, resource owner and client credentials grant types.
+## Example ##
 
-### Example Server
-
-````go
-import "github.com/RangelReale/osin"
-
-// TestStorage implements the "osin.Storage" interface
-server := osin.NewServer(osin.NewServerConfig(), &TestStorage{})
-
-// Authorization code endpoint
-http.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
-	resp := server.NewResponse()
-	defer resp.Close()
-
-	if ar := server.HandleAuthorizeRequest(resp, r); ar != nil {
-
-		// HANDLE LOGIN PAGE HERE
-
-		ar.Authorized = true
-		server.FinishAuthorizeRequest(resp, r, ar)
-	}
-	osin.OutputJSON(resp, w, r)
-})
-
-// Access token endpoint
-http.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
-	resp := server.NewResponse()
-	defer resp.Close()
-
-	if ar := server.HandleAccessRequest(resp, r); ar != nil {
-		ar.Authorized = true
-		server.FinishAccessRequest(resp, r, ar)
-	}
-	osin.OutputJSON(resp, w, r)
-})
-
-http.ListenAndServe(":14000", nil)
-````
-
-### Example Access
-
-Open in your web browser:
-
-````
-http://localhost:14000/authorize?response_type=code&client_id=1234&redirect_uri=http%3A%2F%2Flocalhost%3A14000%2Fappauth%2Fcode
-````
-
-### Storage backends
-
-There is a mock available at [example/teststorage.go](/example/teststorage.go) which you can use as a guide for writing your own.  
-
-You might want to check out other implementations for common database management systems as well:
-
-* [PostgreSQL](https://github.com/ory-am/osin-storage)
-* [MongoDB](https://github.com/martint17r/osin-mongo-storage)
-* [RethinkDB](https://github.com/ahmet/osin-rethinkdb)
-
-### License
-
-The code is licensed using "New BSD" license.
-
-### Author
-
-Rangel Reale
-rangelreale@gmail.com
-
-### Changes
-
-2014-06-25
-==========
-* BREAKING CHANGES:
-	- Storage interface has 2 new methods, Clone and Close, to better support storages
-	  that need to clone / close in each connection (mgo)
-	- Client was changed to be an interface instead of an struct. Because of that,
-	  the Storage interface also had to change, as interface is already a pointer.
-
-	- HOW TO FIX YOUR CODE:
-		+ In your Storage, add a Clone function returning itself, and a do nothing Close.
-		+ In your Storage, replace all *osin.Client with osin.Client (remove the pointer reference)
-		+ If you used the osin.Client struct directly in your code, change it to osin.DefaultClient,
-		  which is a struct with the same fields that implements the interface.
-		+ Change all accesses using osin.Client to use the methods instead of the fields directly.
-		+ You MUST defer Response.Close in all your http handlers, otherwise some
-		  Storages may not clean correctly.
-
-				resp := server.NewResponse()
-				defer resp.Close()
+Currently the rewrite is a work in progress. Please see the [examples](./examples) 
+directory for the currently availaible examples.

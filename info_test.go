@@ -1,4 +1,4 @@
-package osin
+package oauthlib
 
 import (
 	"net/http"
@@ -8,7 +8,7 @@ import (
 
 func TestInfo(t *testing.T) {
 	sconfig := NewServerConfig()
-	server := NewServer(sconfig, NewTestingStorage())
+	server := NewServer(sconfig, NewTestingStorage(t))
 	resp := server.NewResponse()
 
 	req, err := http.NewRequest("GET", "http://localhost:14000/appauth", nil)
@@ -30,7 +30,7 @@ func TestInfo(t *testing.T) {
 		t.Fatalf("Should not be an error")
 	}
 
-	if resp.Type != DATA {
+	if resp.ResponseType != DATA {
 		t.Fatalf("Response should be data")
 	}
 
@@ -41,7 +41,7 @@ func TestInfo(t *testing.T) {
 
 func TestInfoWhenCodeIsOnHeader(t *testing.T) {
 	sconfig := NewServerConfig()
-	server := NewServer(sconfig, NewTestingStorage())
+	server := NewServer(sconfig, NewTestingStorage(t))
 	resp := server.NewResponse()
 
 	req, err := http.NewRequest("GET", "http://localhost:14000/appauth", nil)
@@ -62,7 +62,7 @@ func TestInfoWhenCodeIsOnHeader(t *testing.T) {
 		t.Fatalf("Should not be an error")
 	}
 
-	if resp.Type != DATA {
+	if resp.ResponseType != DATA {
 		t.Fatalf("Response should be data")
 	}
 

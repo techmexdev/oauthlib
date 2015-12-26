@@ -1,4 +1,4 @@
-package osin
+package oauthlib
 
 import (
 	"net/http"
@@ -8,8 +8,8 @@ import (
 
 func TestAccessAuthorizationCode(t *testing.T) {
 	sconfig := NewServerConfig()
-	sconfig.AllowedAccessTypes = AllowedAccessType{AUTHORIZATION_CODE}
-	server := NewServer(sconfig, NewTestingStorage())
+	sconfig.AllowedGrantTypes = []GrantType{AuthorizationCodeGrant}
+	server := NewServer(sconfig, NewTestingStorage(t))
 	server.AccessTokenGen = &TestingAccessTokenGen{}
 	resp := server.NewResponse()
 
@@ -20,7 +20,7 @@ func TestAccessAuthorizationCode(t *testing.T) {
 	req.SetBasicAuth("1234", "aabbccdd")
 
 	req.Form = make(url.Values)
-	req.Form.Set("grant_type", string(AUTHORIZATION_CODE))
+	req.Form.Set("grant_type", string(AuthorizationCodeGrant))
 	req.Form.Set("code", "9999")
 	req.Form.Set("state", "a")
 	req.PostForm = make(url.Values)
@@ -40,7 +40,7 @@ func TestAccessAuthorizationCode(t *testing.T) {
 		t.Fatalf("Should not be an error")
 	}
 
-	if resp.Type != DATA {
+	if resp.ResponseType != DATA {
 		t.Fatalf("Response should be data")
 	}
 
@@ -55,8 +55,8 @@ func TestAccessAuthorizationCode(t *testing.T) {
 
 func TestAccessRefreshToken(t *testing.T) {
 	sconfig := NewServerConfig()
-	sconfig.AllowedAccessTypes = AllowedAccessType{REFRESH_TOKEN}
-	server := NewServer(sconfig, NewTestingStorage())
+	sconfig.AllowedGrantTypes = []GrantType{RefreshTokenGrant}
+	server := NewServer(sconfig, NewTestingStorage(t))
 	server.AccessTokenGen = &TestingAccessTokenGen{}
 	resp := server.NewResponse()
 
@@ -67,7 +67,7 @@ func TestAccessRefreshToken(t *testing.T) {
 	req.SetBasicAuth("1234", "aabbccdd")
 
 	req.Form = make(url.Values)
-	req.Form.Set("grant_type", string(REFRESH_TOKEN))
+	req.Form.Set("grant_type", string(RefreshTokenGrant))
 	req.Form.Set("refresh_token", "r9999")
 	req.Form.Set("state", "a")
 	req.PostForm = make(url.Values)
@@ -87,7 +87,7 @@ func TestAccessRefreshToken(t *testing.T) {
 		t.Fatalf("Should not be an error")
 	}
 
-	if resp.Type != DATA {
+	if resp.ResponseType != DATA {
 		t.Fatalf("Response should be data")
 	}
 
@@ -102,8 +102,8 @@ func TestAccessRefreshToken(t *testing.T) {
 
 func TestAccessPassword(t *testing.T) {
 	sconfig := NewServerConfig()
-	sconfig.AllowedAccessTypes = AllowedAccessType{PASSWORD}
-	server := NewServer(sconfig, NewTestingStorage())
+	sconfig.AllowedGrantTypes = []GrantType{PasswordGrant}
+	server := NewServer(sconfig, NewTestingStorage(t))
 	server.AccessTokenGen = &TestingAccessTokenGen{}
 	resp := server.NewResponse()
 
@@ -114,7 +114,7 @@ func TestAccessPassword(t *testing.T) {
 	req.SetBasicAuth("1234", "aabbccdd")
 
 	req.Form = make(url.Values)
-	req.Form.Set("grant_type", string(PASSWORD))
+	req.Form.Set("grant_type", string(PasswordGrant))
 	req.Form.Set("username", "testing")
 	req.Form.Set("password", "testing")
 	req.Form.Set("state", "a")
@@ -135,7 +135,7 @@ func TestAccessPassword(t *testing.T) {
 		t.Fatalf("Should not be an error")
 	}
 
-	if resp.Type != DATA {
+	if resp.ResponseType != DATA {
 		t.Fatalf("Response should be data")
 	}
 
@@ -150,8 +150,8 @@ func TestAccessPassword(t *testing.T) {
 
 func TestAccessClientCredentials(t *testing.T) {
 	sconfig := NewServerConfig()
-	sconfig.AllowedAccessTypes = AllowedAccessType{CLIENT_CREDENTIALS}
-	server := NewServer(sconfig, NewTestingStorage())
+	sconfig.AllowedGrantTypes = []GrantType{ClientCredentialsGrant}
+	server := NewServer(sconfig, NewTestingStorage(t))
 	server.AccessTokenGen = &TestingAccessTokenGen{}
 	resp := server.NewResponse()
 
@@ -162,7 +162,7 @@ func TestAccessClientCredentials(t *testing.T) {
 	req.SetBasicAuth("1234", "aabbccdd")
 
 	req.Form = make(url.Values)
-	req.Form.Set("grant_type", string(CLIENT_CREDENTIALS))
+	req.Form.Set("grant_type", string(ClientCredentialsGrant))
 	req.Form.Set("state", "a")
 	req.PostForm = make(url.Values)
 
@@ -181,7 +181,7 @@ func TestAccessClientCredentials(t *testing.T) {
 		t.Fatalf("Should not be an error")
 	}
 
-	if resp.Type != DATA {
+	if resp.ResponseType != DATA {
 		t.Fatalf("Response should be data")
 	}
 
@@ -221,21 +221,24 @@ func TestExtraScopes(t *testing.T) {
 type clientWithoutMatcher struct {
 	Id          string
 	Secret      string
-	RedirectUri string
+	RedirectURI string
 }
 
 func (c *clientWithoutMatcher) GetId() string            { return c.Id }
 func (c *clientWithoutMatcher) GetSecret() string        { return c.Secret }
-func (c *clientWithoutMatcher) GetRedirectUri() string   { return c.RedirectUri }
+func (c *clientWithoutMatcher) GetRedirectURI() string   { return c.RedirectURI }
 func (c *clientWithoutMatcher) GetUserData() interface{} { return nil }
 
 func TestGetClientWithoutMatcher(t *testing.T) {
 	myclient := &clientWithoutMatcher{
 		Id:          "myclient",
 		Secret:      "myclientsecret",
-		RedirectUri: "http://www.example.com",
+		RedirectURI: "http://www.example.com",
 	}
-	storage := &TestingStorage{clients: map[string]Client{myclient.Id: myclient}}
+
+	storage := NewMemStorage()
+	storage.Logger = t.Logf
+	storage.SetClient(myclient.Id, myclient)
 
 	// Ensure bad secret fails
 	{
@@ -268,12 +271,12 @@ func TestGetClientWithoutMatcher(t *testing.T) {
 type clientWithMatcher struct {
 	Id          string
 	Secret      string
-	RedirectUri string
+	RedirectURI string
 }
 
 func (c *clientWithMatcher) GetId() string            { return c.Id }
 func (c *clientWithMatcher) GetSecret() string        { panic("called GetSecret"); return "" }
-func (c *clientWithMatcher) GetRedirectUri() string   { return c.RedirectUri }
+func (c *clientWithMatcher) GetRedirectURI() string   { return c.RedirectURI }
 func (c *clientWithMatcher) GetUserData() interface{} { return nil }
 func (c *clientWithMatcher) ClientSecretMatches(secret string) bool {
 	return secret == c.Secret
@@ -283,9 +286,12 @@ func TestGetClientSecretMatcher(t *testing.T) {
 	myclient := &clientWithMatcher{
 		Id:          "myclient",
 		Secret:      "myclientsecret",
-		RedirectUri: "http://www.example.com",
+		RedirectURI: "http://www.example.com",
 	}
-	storage := &TestingStorage{clients: map[string]Client{myclient.Id: myclient}}
+
+	storage := NewMemStorage()
+	storage.Logger = t.Logf
+	storage.SetClient(myclient.Id, myclient)
 
 	// Ensure bad secret fails, but does not panic (doesn't call GetSecret)
 	{

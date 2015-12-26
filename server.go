@@ -1,4 +1,4 @@
-package osin
+package oauthlib
 
 import (
 	"time"
@@ -27,6 +27,6 @@ func NewServer(config *ServerConfig, storage Storage) *Server {
 // NewResponse creates a new response for the server
 func (s *Server) NewResponse() *Response {
 	r := NewResponse(s.Storage)
-	r.ErrorStatusCode = s.Config.ErrorStatusCode
+	r.HttpStatusCode = s.Config.HttpStatusCode
 	return r
 }

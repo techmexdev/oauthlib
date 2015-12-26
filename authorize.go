@@ -1,4 +1,4 @@
-package osin
+package oauthlib
 
 import (
 	"net/http"
@@ -19,7 +19,7 @@ type AuthorizeRequest struct {
 	Type        AuthorizeRequestType
 	Client      Client
 	Scope       string
-	RedirectUri string
+	RedirectURI string
 	State       string
 
 	// Set if request is authorized
@@ -51,7 +51,7 @@ type AuthorizeData struct {
 	Scope string
 
 	// Redirect Uri from request
-	RedirectUri string
+	RedirectURI string
 
 	// State data from request
 	State string
@@ -99,7 +99,7 @@ func (s *Server) HandleAuthorizeRequest(w *Response, r *http.Request) *Authorize
 	ret := &AuthorizeRequest{
 		State:       r.Form.Get("state"),
 		Scope:       r.Form.Get("scope"),
-		RedirectUri: unescapedUri,
+		RedirectURI: unescapedUri,
 		Authorized:  false,
 		HttpRequest: r,
 	}
@@ -115,27 +115,27 @@ func (s *Server) HandleAuthorizeRequest(w *Response, r *http.Request) *Authorize
 		w.SetErrorState(E_UNAUTHORIZED_CLIENT, "", ret.State)
 		return nil
 	}
-	if ret.Client.GetRedirectUri() == "" {
+	if ret.Client.GetRedirectURI() == "" {
 		w.SetErrorState(E_UNAUTHORIZED_CLIENT, "", ret.State)
 		return nil
 	}
 
 	// check redirect uri, if there are multiple client redirect uri's
 	// don't set the uri
-	if ret.RedirectUri == "" && FirstUri(ret.Client.GetRedirectUri(), s.Config.RedirectUriSeparator) == ret.Client.GetRedirectUri() {
-		ret.RedirectUri = FirstUri(ret.Client.GetRedirectUri(), s.Config.RedirectUriSeparator)
+	if ret.RedirectURI == "" && FirstUri(ret.Client.GetRedirectURI(), s.Config.RedirectURISeparator) == ret.Client.GetRedirectURI() {
+		ret.RedirectURI = FirstUri(ret.Client.GetRedirectURI(), s.Config.RedirectURISeparator)
 	}
 
-	if err = ValidateUriList(ret.Client.GetRedirectUri(), ret.RedirectUri, s.Config.RedirectUriSeparator); err != nil {
+	if err = ValidateUriList(ret.Client.GetRedirectURI(), ret.RedirectURI, s.Config.RedirectURISeparator); err != nil {
 		w.SetErrorState(E_INVALID_REQUEST, "", ret.State)
 		w.InternalError = err
 		return nil
 	}
 
-	w.SetRedirect(ret.RedirectUri)
+	w.SetRedirect(ret.RedirectURI)
 
 	requestType := AuthorizeRequestType(r.Form.Get("response_type"))
-	if s.Config.AllowedAuthorizeTypes.Exists(requestType) {
+	if s.Config.isAuthorizeRequestTypeAllowed(requestType) {
 		switch requestType {
 		case CODE:
 			ret.Type = CODE
@@ -158,7 +158,7 @@ func (s *Server) FinishAuthorizeRequest(w *Response, r *http.Request, ar *Author
 	}
 
 	// force redirect response
-	w.SetRedirect(ar.RedirectUri)
+	w.SetRedirect(ar.RedirectURI)
 
 	if ar.Authorized {
 		if ar.Type == TOKEN {
@@ -166,10 +166,10 @@ func (s *Server) FinishAuthorizeRequest(w *Response, r *http.Request, ar *Author
 
 			// generate token directly
 			ret := &AccessRequest{
-				Type:            IMPLICIT,
+				GrantType:       ImplicitGrant,
 				Code:            "",
 				Client:          ar.Client,
-				RedirectUri:     ar.RedirectUri,
+				RedirectURI:     ar.RedirectURI,
 				Scope:           ar.Scope,
 				GenerateRefresh: false, // per the RFC, should NOT generate a refresh token in this case
 				Authorized:      true,
@@ -187,7 +187,7 @@ func (s *Server) FinishAuthorizeRequest(w *Response, r *http.Request, ar *Author
 				Client:      ar.Client,
 				CreatedAt:   s.Now(),
 				ExpiresIn:   ar.Expiration,
-				RedirectUri: ar.RedirectUri,
+				RedirectURI: ar.RedirectURI,
 				State:       ar.State,
 				Scope:       ar.Scope,
 				UserData:    ar.UserData,
@@ -203,7 +203,7 @@ func (s *Server) FinishAuthorizeRequest(w *Response, r *http.Request, ar *Author
 			ret.Code = code
 
 			// save authorization token
-			if err = w.Storage.SaveAuthorize(ret); err != nil {
+			if err = w.Storage.SaveAuthorizeData(ret); err != nil {
 				w.SetErrorState(E_SERVER_ERROR, "", ar.State)
 				w.InternalError = err
 				return
