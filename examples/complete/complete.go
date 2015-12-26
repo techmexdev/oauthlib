@@ -14,7 +14,7 @@ import (
 
 func main() {
 	sconfig := oauthlib.NewServerConfig()
-	sconfig.AllowedAuthorizeRequestTypes = []oauthlib.AuthorizeRequestType{oauthlib.CODE, oauthlib.TOKEN}
+	sconfig.AllowedAuthorizeRequestTypes = []string{"code", "token"}
 	sconfig.AllowedGrantTypes = []oauthlib.GrantType{
 		oauthlib.AuthorizationCodeGrant,
 		oauthlib.RefreshTokenGrant,

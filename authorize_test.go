@@ -27,8 +27,6 @@ func TestAuthorizeCode(t *testing.T) {
 		server.FinishAuthorizeRequest(resp, req, ar)
 	}
 
-	//fmt.Printf("%+v", resp)
-
 	if resp.IsError && resp.InternalError != nil {
 		t.Fatalf("Error in response: %s", resp.InternalError)
 	}
@@ -67,8 +65,6 @@ func TestAuthorizeToken(t *testing.T) {
 		ar.Authorized = true
 		server.FinishAuthorizeRequest(resp, req, ar)
 	}
-
-	//fmt.Printf("%+v", resp)
 
 	if resp.IsError && resp.InternalError != nil {
 		t.Fatalf("Error in response: %s", resp.InternalError)
