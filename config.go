@@ -13,8 +13,8 @@ type ServerConfig struct {
 	// Token type to return
 	TokenType string
 
-	// List of allowed authorize types (only CODE by default)
-	AllowedAuthorizeRequestTypes []AuthorizeRequestType
+	// List of allowed authorize types ("code" or "token" only)
+	AllowedAuthorizeRequestTypes []string
 
 	// List of allowed access types (only AuthorizationCodeGrant by default)
 	AllowedGrantTypes []GrantType
@@ -37,7 +37,7 @@ type ServerConfig struct {
 
 // isAuthorizeRequestTypeAllowed determines if the passed AuthorizedRequestType
 // is in the ServerConfig.AllowedAuthorizeRequestTypes
-func (c ServerConfig) isAuthorizeRequestTypeAllowed(at AuthorizeRequestType) bool {
+func (c ServerConfig) isAuthorizeRequestTypeAllowed(at string) bool {
 	for _, k := range c.AllowedAuthorizeRequestTypes {
 		if k == at {
 			return true
@@ -63,7 +63,7 @@ func NewServerConfig() *ServerConfig {
 		AuthorizationExpiration:      250,
 		AccessExpiration:             3600,
 		TokenType:                    "Bearer",
-		AllowedAuthorizeRequestTypes: []AuthorizeRequestType{CODE},
+		AllowedAuthorizeRequestTypes: []string{"code"},
 		AllowedGrantTypes:            []GrantType{AuthorizationCodeGrant},
 		HttpStatusCode:               http.StatusOK,
 		AllowClientSecretInParams:    false,

@@ -6,17 +6,9 @@ import (
 	"time"
 )
 
-// AuthorizeRequestType is the type for OAuth param `response_type`
-type AuthorizeRequestType string
-
-const (
-	CODE  AuthorizeRequestType = "code"
-	TOKEN AuthorizeRequestType = "token"
-)
-
 // Authorize request information
 type AuthorizeRequest struct {
-	Type        AuthorizeRequestType
+	Type        string
 	Client      Client
 	Scope       string
 	RedirectURI string
@@ -134,15 +126,17 @@ func (s *Server) HandleAuthorizeRequest(w *Response, r *http.Request) *Authorize
 
 	w.SetRedirect(ret.RedirectURI)
 
-	requestType := AuthorizeRequestType(r.Form.Get("response_type"))
-	if s.Config.isAuthorizeRequestTypeAllowed(requestType) {
-		switch requestType {
-		case CODE:
-			ret.Type = CODE
+	responseType := r.Form.Get("response_type")
+	if s.Config.isAuthorizeRequestTypeAllowed(responseType) {
+		switch responseType {
+		case "code":
+			ret.Type = "code"
 			ret.Expiration = s.Config.AuthorizationExpiration
-		case TOKEN:
-			ret.Type = TOKEN
+		case "token":
+			ret.Type = "token"
 			ret.Expiration = s.Config.AccessExpiration
+		default:
+			// FIXME -- this should be an error!
 		}
 		return ret
 	}
@@ -161,7 +155,7 @@ func (s *Server) FinishAuthorizeRequest(w *Response, r *http.Request, ar *Author
 	w.SetRedirect(ar.RedirectURI)
 
 	if ar.Authorized {
-		if ar.Type == TOKEN {
+		if ar.Type == "token" {
 			w.SetRedirectFragment(true)
 
 			// generate token directly

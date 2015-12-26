@@ -8,7 +8,7 @@ import (
 
 func TestAuthorizeCode(t *testing.T) {
 	sconfig := NewServerConfig()
-	sconfig.AllowedAuthorizeRequestTypes = []AuthorizeRequestType{CODE}
+	sconfig.AllowedAuthorizeRequestTypes = []string{"code"}
 	server := NewServer(sconfig, NewTestStorage(t))
 	server.AuthorizeTokenGen = &TestingAuthorizeTokenGen{}
 	resp := server.NewResponse()
@@ -18,7 +18,7 @@ func TestAuthorizeCode(t *testing.T) {
 		t.Fatal(err)
 	}
 	req.Form = make(url.Values)
-	req.Form.Set("response_type", string(CODE))
+	req.Form.Set("response_type", "code")
 	req.Form.Set("client_id", "1234")
 	req.Form.Set("state", "a")
 
@@ -48,7 +48,7 @@ func TestAuthorizeCode(t *testing.T) {
 
 func TestAuthorizeToken(t *testing.T) {
 	sconfig := NewServerConfig()
-	sconfig.AllowedAuthorizeRequestTypes = []AuthorizeRequestType{TOKEN}
+	sconfig.AllowedAuthorizeRequestTypes = []string{"token"}
 	server := NewServer(sconfig, NewTestStorage(t))
 	server.AuthorizeTokenGen = &TestingAuthorizeTokenGen{}
 	server.AccessTokenGen = &TestingAccessTokenGen{}
@@ -59,7 +59,7 @@ func TestAuthorizeToken(t *testing.T) {
 		t.Fatal(err)
 	}
 	req.Form = make(url.Values)
-	req.Form.Set("response_type", string(TOKEN))
+	req.Form.Set("response_type", "token")
 	req.Form.Set("client_id", "1234")
 	req.Form.Set("state", "a")
 
