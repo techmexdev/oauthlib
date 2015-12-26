@@ -133,7 +133,7 @@ func (s *Server) HandleAuthorizeRequest(w *Response, r *http.Request) *Authorize
 		ret.RedirectURI = firstURI(ret.Client.GetRedirectURI(), s.Config.RedirectURISeparator)
 	}
 
-	if err = ValidateURIList(ret.Client.GetRedirectURI(), ret.RedirectURI, s.Config.RedirectURISeparator); err != nil {
+	if err = validateURIList(ret.Client.GetRedirectURI(), ret.RedirectURI, s.Config.RedirectURISeparator); err != nil {
 		w.SetError(ErrInvalidRequest, ret.State)
 		w.InternalError = err
 		return nil

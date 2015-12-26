@@ -4,7 +4,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -19,8 +21,8 @@ type BearerAuth struct {
 	Code string
 }
 
-// CheckBasicAuth checks the authorization header data for correct basic auth.
-func CheckBasicAuth(r *http.Request) (*BasicAuth, error) {
+// checkBasicAuth checks the authorization header data for correct basic auth.
+func checkBasicAuth(r *http.Request) (*BasicAuth, error) {
 	if r.Header.Get("Authorization") == "" {
 		return nil, nil
 	}
@@ -42,11 +44,11 @@ func CheckBasicAuth(r *http.Request) (*BasicAuth, error) {
 	return &BasicAuth{Username: pair[0], Password: pair[1]}, nil
 }
 
-// CheckBearerAuth checks the bearer auth.
+// checkBearerAuth checks the bearer auth.
 //
 // Return "Bearer" token from request. The header has precedence over query
 // string.
-func CheckBearerAuth(r *http.Request) *BearerAuth {
+func checkBearerAuth(r *http.Request) *BearerAuth {
 	authHeader := r.Header.Get("Authorization")
 	authForm := r.Form.Get("code")
 	if authHeader == "" && authForm == "" {
@@ -82,7 +84,7 @@ func getClientAuth(w *Response, r *http.Request, allowQueryParams bool) *BasicAu
 		}
 	}
 
-	auth, err := CheckBasicAuth(r)
+	auth, err := checkBasicAuth(r)
 	if err != nil {
 		w.SetError(ErrInvalidRequest)
 		w.InternalError = err
@@ -128,4 +130,108 @@ func WriteJSON(w http.ResponseWriter, rs *Response) error {
 	}
 
 	return nil
+}
+
+// URIValidationError is the error returned when the passed uri does not pass
+// validation.
+type URIValidationError string
+
+// Error satisfies the error interface.
+func (e URIValidationError) Error() string {
+	return string(e)
+}
+
+// newURIValidationError does something
+func newURIValidationError(msg string, base string, redirect string) URIValidationError {
+	return URIValidationError(fmt.Sprintf("%s: %s / %s", msg, base, redirect))
+}
+
+// validateURIList validates that redirectURI is contained in baseURI.
+// baseURIList may be a string separated by separator.
+// If separator is blank, validate only 1 URI.
+func validateURIList(baseURI string, redirectURI string, separator string) error {
+	// make a list of uris
+	var slist []string
+	if separator != "" {
+		slist = strings.Split(baseURI, separator)
+	} else {
+		slist = make([]string, 0)
+		slist = append(slist, baseURI)
+	}
+
+	for _, sitem := range slist {
+		err := validateURI(sitem, redirectURI)
+		// validated, return no error
+		if err == nil {
+			return nil
+		}
+
+		// if there was an error that is not a validation error, return it
+		if _, iok := err.(URIValidationError); !iok {
+			return err
+		}
+	}
+
+	return newURIValidationError("urls don't validate", baseURI, redirectURI)
+}
+
+// validateURI validates that redirectURI is contained in baseURI
+func validateURI(baseURI string, redirectURI string) error {
+	if baseURI == "" || redirectURI == "" {
+		return errors.New("urls cannot be blank")
+	}
+
+	// parse base url
+	base, err := url.Parse(baseURI)
+	if err != nil {
+		return err
+	}
+
+	// parse passed url
+	redirect, err := url.Parse(redirectURI)
+	if err != nil {
+		return err
+	}
+
+	// must not have fragment
+	if base.Fragment != "" || redirect.Fragment != "" {
+		return errors.New("url must not include fragment")
+	}
+
+	// check if urls match
+	if base.Scheme != redirect.Scheme {
+		return newURIValidationError("scheme mismatch", baseURI, redirectURI)
+	}
+	if base.Host != redirect.Host {
+		return newURIValidationError("host mismatch", baseURI, redirectURI)
+	}
+
+	// allow exact path matches
+	if base.Path == redirect.Path {
+		return nil
+	}
+
+	// ensure prefix matches are actually subpaths
+	requiredPrefix := strings.TrimRight(base.Path, "/") + "/"
+	if !strings.HasPrefix(redirect.Path, requiredPrefix) {
+		return newURIValidationError("path is not a subpath", baseURI, redirectURI)
+	}
+
+	// ensure prefix matches don't contain path traversals
+	for _, s := range strings.Split(strings.TrimPrefix(redirect.Path, requiredPrefix), "/") {
+		if s == ".." {
+			return newURIValidationError("subpath cannot contain path traversal", baseURI, redirectURI)
+		}
+	}
+
+	return nil
+}
+
+// firstURI returns the first uri from an uri list.
+func firstURI(baseURI string, sep string) string {
+	if sep == "" {
+		return baseURI
+	}
+
+	return strings.Split(baseURI, sep)[0]
 }

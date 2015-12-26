@@ -21,7 +21,7 @@ func (s *Server) HandleInfoRequest(w *Response, r *http.Request) *InfoRequest {
 		return nil
 	}
 
-	bearer := CheckBearerAuth(r)
+	bearer := checkBearerAuth(r)
 	if bearer == nil {
 		w.SetError(ErrInvalidRequest)
 		return nil

@@ -1,1 +1,5 @@
 coverage.out
+examples/complete/complete
+examples/goauth2client/goauth2client
+examples/jwttoken/jwttoken
+examples/simple/simple
