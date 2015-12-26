@@ -29,4 +29,5 @@ directory for the currently availaible examples.
 ## Warning ##
 
 This is a substanial rewrite, and as of now the API is vastly in flux. Things
-may break an any given juncture, and oauthlib does not intend to remain static.
+may break at any given point in time, as oauthlib does not intend to remain
+static.
