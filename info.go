@@ -17,7 +17,7 @@ func (s *Server) HandleInfoRequest(w *Response, r *http.Request) *InfoRequest {
 	r.ParseForm()
 	bearer := CheckBearerAuth(r)
 	if bearer == nil {
-		w.SetError(E_INVALID_REQUEST, "")
+		w.SetError(ErrInvalidRequest)
 		return nil
 	}
 
@@ -27,7 +27,7 @@ func (s *Server) HandleInfoRequest(w *Response, r *http.Request) *InfoRequest {
 	}
 
 	if ret.Code == "" {
-		w.SetError(E_INVALID_REQUEST, "")
+		w.SetError(ErrInvalidRequest)
 		return nil
 	}
 
@@ -36,24 +36,24 @@ func (s *Server) HandleInfoRequest(w *Response, r *http.Request) *InfoRequest {
 	// load access data
 	ret.AccessGrant, err = w.Storage.LoadAccessGrant(ret.Code)
 	if err != nil {
-		w.SetError(E_INVALID_REQUEST, "")
+		w.SetError(ErrInvalidRequest)
 		w.InternalError = err
 		return nil
 	}
 	if ret.AccessGrant == nil {
-		w.SetError(E_INVALID_REQUEST, "")
+		w.SetError(ErrInvalidRequest)
 		return nil
 	}
 	if ret.AccessGrant.Client == nil {
-		w.SetError(E_UNAUTHORIZED_CLIENT, "")
+		w.SetError(ErrUnauthorizedClient)
 		return nil
 	}
 	if ret.AccessGrant.Client.GetRedirectURI() == "" {
-		w.SetError(E_UNAUTHORIZED_CLIENT, "")
+		w.SetError(ErrUnauthorizedClient)
 		return nil
 	}
 	if ret.AccessGrant.IsExpiredAt(s.Now()) {
-		w.SetError(E_INVALID_GRANT, "")
+		w.SetError(ErrInvalidGrant)
 		return nil
 	}
 

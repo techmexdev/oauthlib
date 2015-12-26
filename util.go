@@ -81,12 +81,12 @@ func getClientAuth(w *Response, r *http.Request, allowQueryParams bool) *BasicAu
 
 	auth, err := CheckBasicAuth(r)
 	if err != nil {
-		w.SetError(E_INVALID_REQUEST, "")
+		w.SetError(ErrInvalidRequest)
 		w.InternalError = err
 		return nil
 	}
 	if auth == nil {
-		w.SetError(E_INVALID_REQUEST, "")
+		w.SetError(ErrInvalidRequest)
 		w.InternalError = errors.New("Client authentication not sent")
 		return nil
 	}

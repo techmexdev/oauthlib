@@ -57,41 +57,30 @@ func NewResponse(storage Storage) *Response {
 
 // SetError sets an error id and description on the Response
 // state and uri are left blank
-func (r *Response) SetError(id string, description string) {
-	r.SetErrorUri(id, description, "", "")
-}
-
-// SetErrorState sets an error id, description, and state on the Response
-// uri is left blank
-func (r *Response) SetErrorState(id string, description string, state string) {
-	r.SetErrorUri(id, description, "", state)
-}
-
-// SetErrorUri sets an error id, description, state, and uri on the Response
-func (r *Response) SetErrorUri(id string, description string, uri string, state string) {
-	// get default error message
-	if description == "" {
-		description = deferror.Get(id)
-	}
-
+func (r *Response) SetError(e *ResponseError, state ...string) {
 	// set error parameters
 	r.IsError = true
-	r.ErrorId = id
+	r.ErrorId = e.Type
 	r.StatusCode = r.HttpStatusCode
 	if r.StatusCode != http.StatusOK {
-		r.StatusText = description
+		r.StatusText = e.Desc
 	} else {
 		r.StatusText = ""
 	}
 	r.Output = make(ResponseData) // clear output
-	r.Output["error"] = id
-	r.Output["error_description"] = description
-	if uri != "" {
+	r.Output["error"] = e.Type
+	r.Output["error_description"] = e.Desc
+	/*if uri != "" {
 		r.Output["error_uri"] = uri
+	}*/
+
+	if len(state) > 0 && state[0] != "" {
+		r.Output["state"] = state[0]
 	}
-	if state != "" {
-		r.Output["state"] = state
-	}
+}
+
+// SetErrorUri sets an error id, description, state, and uri on the Response
+func (r *Response) SetErrorUri(id string, description string, uri string, state string) {
 }
 
 // SetErrorUri changes the response to redirect to the given url

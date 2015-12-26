@@ -114,26 +114,26 @@ func (s *Server) HandleAccessRequest(w *Response, r *http.Request) *AccessReques
 	// Only allow GET or POST
 	if r.Method == "GET" {
 		if !s.Config.AllowGetAccessRequest {
-			w.SetError(E_INVALID_REQUEST, "")
+			w.SetError(ErrInvalidRequest)
 			w.InternalError = errors.New("Request must be POST")
 			return nil
 		}
 	} else if r.Method != "POST" {
-		w.SetError(E_INVALID_REQUEST, "")
+		w.SetError(ErrInvalidRequest)
 		w.InternalError = errors.New("Request must be POST")
 		return nil
 	}
 
 	err := r.ParseForm()
 	if err != nil {
-		w.SetError(E_INVALID_REQUEST, "")
+		w.SetError(ErrInvalidRequest)
 		w.InternalError = err
 		return nil
 	}
 
 	grantType := GrantType(r.Form.Get("grant_type"))
 	if !s.Config.isGrantTypeAllowed(grantType) {
-		w.SetError(E_UNSUPPORTED_GRANT_TYPE, "")
+		w.SetError(ErrUnsupportedGrantType)
 		return nil
 	}
 
@@ -150,7 +150,7 @@ func (s *Server) HandleAccessRequest(w *Response, r *http.Request) *AccessReques
 		return s.handleAssertionRequest(w, r)
 	}
 
-	w.SetError(E_UNSUPPORTED_GRANT_TYPE, "")
+	w.SetError(ErrUnsupportedGrantType)
 	return nil
 }
 
@@ -173,7 +173,7 @@ func (s *Server) handleAuthorizationCodeRequest(w *Response, r *http.Request) *A
 
 	// "code" is required
 	if ret.Code == "" {
-		w.SetError(E_INVALID_GRANT, "")
+		w.SetError(ErrInvalidGrant)
 		return nil
 	}
 
@@ -186,30 +186,30 @@ func (s *Server) handleAuthorizationCodeRequest(w *Response, r *http.Request) *A
 	var err error
 	ret.AuthorizeData, err = w.Storage.LoadAuthorizeData(ret.Code)
 	if err != nil {
-		w.SetError(E_INVALID_GRANT, "")
+		w.SetError(ErrInvalidGrant)
 		w.InternalError = err
 		return nil
 	}
 	if ret.AuthorizeData == nil {
-		w.SetError(E_UNAUTHORIZED_CLIENT, "")
+		w.SetError(ErrUnauthorizedClient)
 		return nil
 	}
 	if ret.AuthorizeData.Client == nil {
-		w.SetError(E_UNAUTHORIZED_CLIENT, "")
+		w.SetError(ErrUnauthorizedClient)
 		return nil
 	}
 	if ret.AuthorizeData.Client.GetRedirectURI() == "" {
-		w.SetError(E_UNAUTHORIZED_CLIENT, "")
+		w.SetError(ErrUnauthorizedClient)
 		return nil
 	}
 	if ret.AuthorizeData.IsExpiredAt(s.Now()) {
-		w.SetError(E_INVALID_GRANT, "")
+		w.SetError(ErrInvalidGrant)
 		return nil
 	}
 
 	// code must be from the client
 	if ret.AuthorizeData.Client.GetId() != ret.Client.GetId() {
-		w.SetError(E_INVALID_GRANT, "")
+		w.SetError(ErrInvalidGrant)
 		return nil
 	}
 
@@ -218,12 +218,12 @@ func (s *Server) handleAuthorizationCodeRequest(w *Response, r *http.Request) *A
 		ret.RedirectURI = FirstUri(ret.Client.GetRedirectURI(), s.Config.RedirectURISeparator)
 	}
 	if err = ValidateUriList(ret.Client.GetRedirectURI(), ret.RedirectURI, s.Config.RedirectURISeparator); err != nil {
-		w.SetError(E_INVALID_REQUEST, "")
+		w.SetError(ErrInvalidRequest)
 		w.InternalError = err
 		return nil
 	}
 	if ret.AuthorizeData.RedirectURI != ret.RedirectURI {
-		w.SetError(E_INVALID_REQUEST, "")
+		w.SetError(ErrInvalidRequest)
 		w.InternalError = errors.New("Redirect uri is different")
 		return nil
 	}
@@ -278,7 +278,7 @@ func (s *Server) handleRefreshTokenRequest(w *Response, r *http.Request) *Access
 
 	// "refresh_token" is required
 	if ret.Code == "" {
-		w.SetError(E_INVALID_GRANT, "")
+		w.SetError(ErrInvalidGrant)
 		return nil
 	}
 
@@ -291,26 +291,26 @@ func (s *Server) handleRefreshTokenRequest(w *Response, r *http.Request) *Access
 	var err error
 	ret.AccessGrant, err = w.Storage.LoadRefreshGrant(ret.Code)
 	if err != nil {
-		w.SetError(E_INVALID_GRANT, "")
+		w.SetError(ErrInvalidGrant)
 		w.InternalError = err
 		return nil
 	}
 	if ret.AccessGrant == nil {
-		w.SetError(E_UNAUTHORIZED_CLIENT, "")
+		w.SetError(ErrUnauthorizedClient)
 		return nil
 	}
 	if ret.AccessGrant.Client == nil {
-		w.SetError(E_UNAUTHORIZED_CLIENT, "")
+		w.SetError(ErrUnauthorizedClient)
 		return nil
 	}
 	if ret.AccessGrant.Client.GetRedirectURI() == "" {
-		w.SetError(E_UNAUTHORIZED_CLIENT, "")
+		w.SetError(ErrUnauthorizedClient)
 		return nil
 	}
 
 	// client must be the same as the previous token
 	if ret.AccessGrant.Client.GetId() != ret.Client.GetId() {
-		w.SetError(E_INVALID_CLIENT, "")
+		w.SetError(ErrInvalidClient)
 		w.InternalError = errors.New("Client id must be the same from previous token")
 		return nil
 
@@ -324,7 +324,7 @@ func (s *Server) handleRefreshTokenRequest(w *Response, r *http.Request) *Access
 	}
 
 	if extraScopes(ret.AccessGrant.Scope, ret.Scope) {
-		w.SetError(E_ACCESS_DENIED, "")
+		w.SetError(ErrAccessDenied)
 		w.InternalError = errors.New("the requested scope must not include any scope not originally granted by the resource owner")
 		return nil
 	}
@@ -352,7 +352,7 @@ func (s *Server) handlePasswordRequest(w *Response, r *http.Request) *AccessRequ
 
 	// "username" and "password" is required
 	if ret.Username == "" || ret.Password == "" {
-		w.SetError(E_INVALID_GRANT, "")
+		w.SetError(ErrInvalidGrant)
 		return nil
 	}
 
@@ -414,7 +414,7 @@ func (s *Server) handleAssertionRequest(w *Response, r *http.Request) *AccessReq
 
 	// "assertion_type" and "assertion" is required
 	if ret.AssertionType == "" || ret.Assertion == "" {
-		w.SetError(E_INVALID_GRANT, "")
+		w.SetError(ErrInvalidGrant)
 		return nil
 	}
 
@@ -459,7 +459,7 @@ func (s *Server) FinishAccessRequest(w *Response, r *http.Request, ar *AccessReq
 			// generate access token
 			ret.AccessToken, ret.RefreshToken, err = s.AccessTokenGen.GenerateAccessToken(ret, ar.GenerateRefresh)
 			if err != nil {
-				w.SetError(E_SERVER_ERROR, "")
+				w.SetError(ErrServerError)
 				w.InternalError = err
 				return
 			}
@@ -469,7 +469,7 @@ func (s *Server) FinishAccessRequest(w *Response, r *http.Request, ar *AccessReq
 
 		// save access token
 		if err = w.Storage.SaveAccessGrant(ret); err != nil {
-			w.SetError(E_SERVER_ERROR, "")
+			w.SetError(ErrServerError)
 			w.InternalError = err
 			return
 		}
@@ -498,7 +498,7 @@ func (s *Server) FinishAccessRequest(w *Response, r *http.Request, ar *AccessReq
 			w.Output["scope"] = ar.Scope
 		}
 	} else {
-		w.SetError(E_ACCESS_DENIED, "")
+		w.SetError(ErrAccessDenied)
 	}
 }
 
@@ -509,12 +509,12 @@ func (s *Server) FinishAccessRequest(w *Response, r *http.Request, ar *AccessReq
 func getClient(auth *BasicAuth, storage Storage, w *Response) Client {
 	client, err := storage.GetClient(auth.Username)
 	if err != nil {
-		w.SetError(E_SERVER_ERROR, "")
+		w.SetError(ErrServerError)
 		w.InternalError = err
 		return nil
 	}
 	if client == nil {
-		w.SetError(E_UNAUTHORIZED_CLIENT, "")
+		w.SetError(ErrUnauthorizedClient)
 		return nil
 	}
 
@@ -522,19 +522,19 @@ func getClient(auth *BasicAuth, storage Storage, w *Response) Client {
 	case ClientSecretMatcher:
 		// Prefer the more secure method of giving the secret to the client for comparison
 		if !client.ClientSecretMatches(auth.Password) {
-			w.SetError(E_UNAUTHORIZED_CLIENT, "")
+			w.SetError(ErrUnauthorizedClient)
 			return nil
 		}
 	default:
 		// Fallback to the less secure method of extracting the plain text secret from the client for comparison
 		if client.GetSecret() != auth.Password {
-			w.SetError(E_UNAUTHORIZED_CLIENT, "")
+			w.SetError(ErrUnauthorizedClient)
 			return nil
 		}
 	}
 
 	if client.GetRedirectURI() == "" {
-		w.SetError(E_UNAUTHORIZED_CLIENT, "")
+		w.SetError(ErrUnauthorizedClient)
 		return nil
 	}
 	return client

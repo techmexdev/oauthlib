@@ -180,11 +180,11 @@ func TestErrorResponseJSON(t *testing.T) {
 
 	r := NewResponse(NewTestStorage(t))
 	r.HttpStatusCode = http.StatusInternalServerError
-	r.SetError(E_INVALID_REQUEST, "")
+	r.SetError(ErrInvalidRequest)
 
 	err := WriteJSON(w, r)
 	if err != nil {
-		t.Fatalf("Error outputting json: %s", err)
+		t.Fatalf("Error writing json: %v", err)
 	}
 
 	//fmt.Printf("%d - %s - %+v", w.Code, w.Body.String(), w.HeaderMap)
@@ -203,7 +203,7 @@ func TestErrorResponseJSON(t *testing.T) {
 		t.Fatalf("Could not decode output json: %s", err)
 	}
 
-	if d, ok := output["error"]; !ok || d != E_INVALID_REQUEST {
+	if d, ok := output["error"]; !ok || d != ErrInvalidRequest.Type {
 		t.Fatalf("Invalid or not found output data: error=%s", d)
 	}
 }
