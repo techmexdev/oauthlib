@@ -21,6 +21,7 @@ Install the package via the following:
   
     go get -u github.com/knq/oauthmw
 
+
 ## Example ##
 
 Currently the rewrite is a work in progress. Please see the [examples](./examples) 
