@@ -9,7 +9,7 @@ import (
 func TestAuthorizeCode(t *testing.T) {
 	sconfig := NewServerConfig()
 	sconfig.AllowedAuthorizeRequestTypes = []AuthorizeRequestType{CODE}
-	server := NewServer(sconfig, NewTestingStorage(t))
+	server := NewServer(sconfig, NewTestStorage(t))
 	server.AuthorizeTokenGen = &TestingAuthorizeTokenGen{}
 	resp := server.NewResponse()
 
@@ -49,7 +49,7 @@ func TestAuthorizeCode(t *testing.T) {
 func TestAuthorizeToken(t *testing.T) {
 	sconfig := NewServerConfig()
 	sconfig.AllowedAuthorizeRequestTypes = []AuthorizeRequestType{TOKEN}
-	server := NewServer(sconfig, NewTestingStorage(t))
+	server := NewServer(sconfig, NewTestStorage(t))
 	server.AuthorizeTokenGen = &TestingAuthorizeTokenGen{}
 	server.AccessTokenGen = &TestingAccessTokenGen{}
 	resp := server.NewResponse()

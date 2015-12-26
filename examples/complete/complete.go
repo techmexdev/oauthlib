@@ -9,7 +9,7 @@ import (
 	"net/url"
 
 	"github.com/knq/oauthlib"
-	"github.com/knq/oauthlib/examples/oauthlibtest"
+	"github.com/knq/oauthlib/oauthlibtest"
 )
 
 func main() {
@@ -24,12 +24,11 @@ func main() {
 	}
 	sconfig.AllowGetAccessRequest = true
 	sconfig.AllowClientSecretInParams = true
-	server := oauthlib.NewServer(sconfig, oauthlibtest.NewTestStorage())
+	server := oauthlib.NewServer(sconfig, oauthlib.NewTestStorage(nil))
 
 	// Authorization code endpoint
 	http.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
 		resp := server.NewResponse()
-		defer resp.Close()
 
 		if ar := server.HandleAuthorizeRequest(resp, r); ar != nil {
 			if !oauthlibtest.HandleLoginPage(ar, w, r) {
@@ -51,7 +50,6 @@ func main() {
 	// Access token endpoint
 	http.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
 		resp := server.NewResponse()
-		defer resp.Close()
 
 		if ar := server.HandleAccessRequest(resp, r); ar != nil {
 			switch ar.GrantType {
@@ -84,7 +82,6 @@ func main() {
 	// Information endpoint
 	http.HandleFunc("/info", func(w http.ResponseWriter, r *http.Request) {
 		resp := server.NewResponse()
-		defer resp.Close()
 
 		if ir := server.HandleInfoRequest(resp, r); ir != nil {
 			server.FinishInfoRequest(resp, r, ir)

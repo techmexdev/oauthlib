@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 	"testing"
 )
 
@@ -140,7 +141,7 @@ func TestBearerAuth(t *testing.T) {
 func TestResponseJSON(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	r := NewResponse(NewTestingStorage(t))
+	r := NewResponse(NewTestStorage(t))
 	r.Output["access_token"] = "1234"
 	r.Output["token_type"] = "5678"
 
@@ -177,7 +178,7 @@ func TestResponseJSON(t *testing.T) {
 func TestErrorResponseJSON(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	r := NewResponse(NewTestingStorage(t))
+	r := NewResponse(NewTestStorage(t))
 	r.HttpStatusCode = http.StatusInternalServerError
 	r.SetError(E_INVALID_REQUEST, "")
 
@@ -210,7 +211,7 @@ func TestErrorResponseJSON(t *testing.T) {
 func TestRedirectResponseJSON(t *testing.T) {
 	w := httptest.NewRecorder()
 
-	r := NewResponse(NewTestingStorage(t))
+	r := NewResponse(NewTestStorage(t))
 	r.SetRedirect("http://localhost:14000")
 
 	err := WriteJSON(w, r)
@@ -227,4 +228,30 @@ func TestRedirectResponseJSON(t *testing.T) {
 	if w.HeaderMap.Get("Location") != "http://localhost:14000" {
 		t.Fatalf("Invalid response location url: %s", w.HeaderMap.Get("Location"))
 	}
+}
+
+// Predictable testing token generation
+type TestingAuthorizeTokenGen struct {
+	counter int64
+}
+
+func (a *TestingAuthorizeTokenGen) GenerateAuthorizeToken(data *AuthorizeData) (ret string, err error) {
+	a.counter++
+	return strconv.FormatInt(a.counter, 10), nil
+}
+
+type TestingAccessTokenGen struct {
+	acounter int64
+	rcounter int64
+}
+
+func (a *TestingAccessTokenGen) GenerateAccessToken(data *AccessGrant, generaterefresh bool) (accesstoken string, refreshtoken string, err error) {
+	a.acounter++
+	accesstoken = strconv.FormatInt(a.acounter, 10)
+
+	if generaterefresh {
+		a.rcounter++
+		refreshtoken = "r" + strconv.FormatInt(a.rcounter, 10)
+	}
+	return
 }
