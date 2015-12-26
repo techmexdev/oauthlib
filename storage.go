@@ -2,8 +2,11 @@ package oauthlib
 
 // Storage interface
 type Storage interface {
-	// GetClient loads the client by id (client_id)
+	// GetClient loads the client by id.
 	GetClient(id string) (Client, error)
+
+	// SetClient saves Client with id to storage.
+	SetClient(id string, client Client) error
 
 	// SaveAuthorizeData saves the AuthorizeData to storage.
 	SaveAuthorizeData(*AuthorizeData) error
@@ -14,27 +17,30 @@ type Storage interface {
 	// Optionally can return error if expired.
 	LoadAuthorizeData(code string) (*AuthorizeData, error)
 
-	// RemoveAuthorize revokes or deletes the authorization code.
+	// RemoveAuthorizeData revokes or deletes the authorization code.
 	RemoveAuthorizeData(code string) error
 
 	// SaveAccessGrant saves AccessGrant to storage.
 	//
-	// If RefreshToken is not blank, it must save in a way that can be loaded using LoadRefresh.
+	// If RefreshToken is not blank, it must save in a way that can be loaded
+	// using LoadRefresh.
 	SaveAccessGrant(*AccessGrant) error
 
-	// LoadAccessGrant retrieves access data by token. Client information MUST be loaded together.
+	// LoadAccessGrant retrieves access data by token. Client information MUST
+	// be loaded together.
 	//
-	// AuthorizeData and AccessGrant DON'T NEED to be loaded if not easily available.
-	// Optionally can return error if expired.
+	// AuthorizeData and AccessGrant DON'T NEED to be loaded if not easily
+	// available. Optionally can return error if expired.
 	LoadAccessGrant(token string) (*AccessGrant, error)
 
-	// RemoveAccess revokes or deletes an AccessGrant.
+	// RemoveAccessGrant revokes or deletes an AccessGrant.
 	RemoveAccessGrant(token string) error
 
-	// LoadRefreshGrant retrieves refresh AccessGrant. Client information MUST be loaded together.
+	// LoadRefreshGrant retrieves refresh AccessGrant. Client information MUST
+	// be loaded together.
 	//
-	// AuthorizeData and AccessGrant DON'T NEED to be loaded if not easily available.
-	// Optionally can return error if expired.
+	// AuthorizeData and AccessGrant DON'T NEED to be loaded if not easily
+	// available. Optionally can return error if expired.
 	LoadRefreshGrant(token string) (*AccessGrant, error)
 
 	// RemoveRefreshGrant revokes or deletes refresh AccessGrant.
