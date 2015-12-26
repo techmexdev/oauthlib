@@ -96,8 +96,8 @@ func (r *Response) SetRedirectFragment(f bool) {
 	r.RedirectInFragment = f
 }
 
-// GetRedirectUrl returns the redirect url with all query string parameters.
-func (r *Response) GetRedirectUrl() (string, error) {
+// GetRedirectURL returns the redirect url with all query string parameters.
+func (r *Response) GetRedirectURL() (string, error) {
 	if r.ResponseType != REDIRECT {
 		return "", errors.New("Not a redirect response")
 	}

@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestURIValidate(t *testing.T) {
+func TestValidateURI(t *testing.T) {
 	valid := [][]string{
 		{
 			// Exact match
@@ -43,8 +43,8 @@ func TestURIValidate(t *testing.T) {
 		},
 	}
 	for _, v := range valid {
-		if err := ValidateUri(v[0], v[1]); err != nil {
-			t.Errorf("Expected ValidateUri(%s, %s) to succeed, got %v", v[0], v[1], err)
+		if err := ValidateURI(v[0], v[1]); err != nil {
+			t.Errorf("Expected ValidateURI(%s, %s) to succeed, got %v", v[0], v[1], err)
 		}
 	}
 
@@ -91,30 +91,30 @@ func TestURIValidate(t *testing.T) {
 		},
 	}
 	for _, v := range invalid {
-		if err := ValidateUri(v[0], v[1]); err == nil {
-			t.Errorf("Expected ValidateUri(%s, %s) to fail", v[0], v[1])
+		if err := ValidateURI(v[0], v[1]); err == nil {
+			t.Errorf("Expected ValidateURI(%s, %s) to fail", v[0], v[1])
 		}
 	}
 }
 
-func TestURIListValidate(t *testing.T) {
+func TestValidateURIList(t *testing.T) {
 	// V1
-	if err := ValidateUriList("http://localhost:14000/appauth", "http://localhost:14000/appauth", ""); err != nil {
+	if err := ValidateURIList("http://localhost:14000/appauth", "http://localhost:14000/appauth", ""); err != nil {
 		t.Errorf("V1: %s", err)
 	}
 
 	// V2
-	if err := ValidateUriList("http://localhost:14000/appauth", "http://localhost:14000/app", ""); err == nil {
+	if err := ValidateURIList("http://localhost:14000/appauth", "http://localhost:14000/app", ""); err == nil {
 		t.Error("V2 should have failed")
 	}
 
 	// V3
-	if err := ValidateUriList("http://xxx:14000/appauth;http://localhost:14000/appauth", "http://localhost:14000/appauth", ";"); err != nil {
+	if err := ValidateURIList("http://xxx:14000/appauth;http://localhost:14000/appauth", "http://localhost:14000/appauth", ";"); err != nil {
 		t.Errorf("V3: %s", err)
 	}
 
 	// V4
-	if err := ValidateUriList("http://xxx:14000/appauth;http://localhost:14000/appauth", "http://localhost:14000/app", ";"); err == nil {
+	if err := ValidateURIList("http://xxx:14000/appauth;http://localhost:14000/appauth", "http://localhost:14000/app", ";"); err == nil {
 		t.Error("V4 should have failed")
 	}
 }

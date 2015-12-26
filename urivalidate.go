@@ -7,57 +7,57 @@ import (
 	"strings"
 )
 
-// UriValidationError is the error returned when the passed uri does not pass
+// URIValidationError is the error returned when the passed uri does not pass
 // validation.
-type UriValidationError string
+type URIValidationError string
 
 // Error satisfies the error interface.
-func (e UriValidationError) Error() string {
+func (e URIValidationError) Error() string {
 	return string(e)
 }
 
-// newUriValidationError does something
-func newUriValidationError(msg string, base string, redirect string) UriValidationError {
-	return UriValidationError(fmt.Sprintf("%s: %s / %s", msg, base, redirect))
+// newURIValidationError does something
+func newURIValidationError(msg string, base string, redirect string) URIValidationError {
+	return URIValidationError(fmt.Sprintf("%s: %s / %s", msg, base, redirect))
 }
 
-// ValidateUriList validates that redirectURI is contained in baseUriList.
-// baseUriList may be a string separated by separator.
+// ValidateURIList validates that redirectURI is contained in baseURI.
+// baseURIList may be a string separated by separator.
 // If separator is blank, validate only 1 URI.
-func ValidateUriList(baseUriList string, redirectURI string, separator string) error {
+func ValidateURIList(baseURI string, redirectURI string, separator string) error {
 	// make a list of uris
 	var slist []string
 	if separator != "" {
-		slist = strings.Split(baseUriList, separator)
+		slist = strings.Split(baseURI, separator)
 	} else {
 		slist = make([]string, 0)
-		slist = append(slist, baseUriList)
+		slist = append(slist, baseURI)
 	}
 
 	for _, sitem := range slist {
-		err := ValidateUri(sitem, redirectURI)
+		err := ValidateURI(sitem, redirectURI)
 		// validated, return no error
 		if err == nil {
 			return nil
 		}
 
 		// if there was an error that is not a validation error, return it
-		if _, iok := err.(UriValidationError); !iok {
+		if _, iok := err.(URIValidationError); !iok {
 			return err
 		}
 	}
 
-	return newUriValidationError("urls don't validate", baseUriList, redirectURI)
+	return newURIValidationError("urls don't validate", baseURI, redirectURI)
 }
 
-// ValidateUri validates that redirectURI is contained in baseUri
-func ValidateUri(baseUri string, redirectURI string) error {
-	if baseUri == "" || redirectURI == "" {
-		return errors.New("urls cannot be blank.")
+// ValidateURI validates that redirectURI is contained in baseURI
+func ValidateURI(baseURI string, redirectURI string) error {
+	if baseURI == "" || redirectURI == "" {
+		return errors.New("urls cannot be blank")
 	}
 
 	// parse base url
-	base, err := url.Parse(baseUri)
+	base, err := url.Parse(baseURI)
 	if err != nil {
 		return err
 	}
@@ -70,15 +70,15 @@ func ValidateUri(baseUri string, redirectURI string) error {
 
 	// must not have fragment
 	if base.Fragment != "" || redirect.Fragment != "" {
-		return errors.New("url must not include fragment.")
+		return errors.New("url must not include fragment")
 	}
 
 	// check if urls match
 	if base.Scheme != redirect.Scheme {
-		return newUriValidationError("scheme mismatch", baseUri, redirectURI)
+		return newURIValidationError("scheme mismatch", baseURI, redirectURI)
 	}
 	if base.Host != redirect.Host {
-		return newUriValidationError("host mismatch", baseUri, redirectURI)
+		return newURIValidationError("host mismatch", baseURI, redirectURI)
 	}
 
 	// allow exact path matches
@@ -89,24 +89,24 @@ func ValidateUri(baseUri string, redirectURI string) error {
 	// ensure prefix matches are actually subpaths
 	requiredPrefix := strings.TrimRight(base.Path, "/") + "/"
 	if !strings.HasPrefix(redirect.Path, requiredPrefix) {
-		return newUriValidationError("path is not a subpath", baseUri, redirectURI)
+		return newURIValidationError("path is not a subpath", baseURI, redirectURI)
 	}
 
 	// ensure prefix matches don't contain path traversals
 	for _, s := range strings.Split(strings.TrimPrefix(redirect.Path, requiredPrefix), "/") {
 		if s == ".." {
-			return newUriValidationError("subpath cannot contain path traversal", baseUri, redirectURI)
+			return newURIValidationError("subpath cannot contain path traversal", baseURI, redirectURI)
 		}
 	}
 
 	return nil
 }
 
-// FirstUri returns the first uri from an uri list.
-func FirstUri(baseUriList string, sep string) string {
+// firstURI returns the first uri from an uri list.
+func firstURI(baseURI string, sep string) string {
 	if sep == "" {
-		return baseUriList
+		return baseURI
 	}
 
-	return strings.Split(baseUriList, sep)[0]
+	return strings.Split(baseURI, sep)[0]
 }

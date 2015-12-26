@@ -88,7 +88,10 @@ func TestGetClientAuth(t *testing.T) {
 	for _, tt := range tests {
 		w := new(Response)
 		r := &http.Request{Header: tt.header, URL: tt.url}
-		r.ParseForm()
+		err := r.ParseForm()
+		if err != nil {
+			t.Fatal(err)
+		}
 		auth := getClientAuth(w, r, tt.allowQueryParams)
 		if tt.expectAuth && auth == nil {
 			t.Errorf("Auth should not be nil for %v", tt)
@@ -131,7 +134,11 @@ func TestBearerAuth(t *testing.T) {
 	// extracts bearer auth from query string
 	url, _ := url.Parse("http://host.tld/path?code=XYZ")
 	r = &http.Request{URL: url}
-	r.ParseForm()
+	err := r.ParseForm()
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	b = CheckBearerAuth(r)
 	if b.Code != "XYZ" {
 		t.Errorf("Error decoding bearer auth")

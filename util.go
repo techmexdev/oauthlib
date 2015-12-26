@@ -107,7 +107,7 @@ func WriteJSON(w http.ResponseWriter, rs *Response) error {
 
 	if rs.ResponseType == REDIRECT {
 		// Output redirect with parameters
-		u, err := rs.GetRedirectUrl()
+		u, err := rs.GetRedirectURL()
 		if err != nil {
 			return err
 		}

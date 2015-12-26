@@ -109,7 +109,7 @@ type AccessGrant struct {
 	// Requested scope
 	Scope string
 
-	// Redirect Uri from request
+	// Redirect URI from request
 	RedirectURI string
 
 	// Date created
@@ -245,9 +245,9 @@ func (s *Server) handleAuthorizationCodeRequest(w *Response, r *http.Request) *A
 
 	// check redirect uri
 	if ret.RedirectURI == "" {
-		ret.RedirectURI = FirstUri(ret.Client.GetRedirectURI(), s.Config.RedirectURISeparator)
+		ret.RedirectURI = firstURI(ret.Client.GetRedirectURI(), s.Config.RedirectURISeparator)
 	}
-	if err = ValidateUriList(ret.Client.GetRedirectURI(), ret.RedirectURI, s.Config.RedirectURISeparator); err != nil {
+	if err = ValidateURIList(ret.Client.GetRedirectURI(), ret.RedirectURI, s.Config.RedirectURISeparator); err != nil {
 		w.SetError(ErrInvalidRequest)
 		w.InternalError = err
 		return nil
@@ -392,7 +392,7 @@ func (s *Server) handlePasswordRequest(w *Response, r *http.Request) *AccessRequ
 	}
 
 	// set redirect uri
-	ret.RedirectURI = FirstUri(ret.Client.GetRedirectURI(), s.Config.RedirectURISeparator)
+	ret.RedirectURI = firstURI(ret.Client.GetRedirectURI(), s.Config.RedirectURISeparator)
 
 	return ret
 }
@@ -419,7 +419,7 @@ func (s *Server) handleClientCredentialsRequest(w *Response, r *http.Request) *A
 	}
 
 	// set redirect uri
-	ret.RedirectURI = FirstUri(ret.Client.GetRedirectURI(), s.Config.RedirectURISeparator)
+	ret.RedirectURI = firstURI(ret.Client.GetRedirectURI(), s.Config.RedirectURISeparator)
 
 	return ret
 }
@@ -454,7 +454,7 @@ func (s *Server) handleAssertionRequest(w *Response, r *http.Request) *AccessReq
 	}
 
 	// set redirect uri
-	ret.RedirectURI = FirstUri(ret.Client.GetRedirectURI(), s.Config.RedirectURISeparator)
+	ret.RedirectURI = firstURI(ret.Client.GetRedirectURI(), s.Config.RedirectURISeparator)
 
 	return ret
 }
@@ -507,15 +507,27 @@ func (s *Server) FinishAccessRequest(w *Response, r *http.Request, ar *AccessReq
 
 		// remove authorization token
 		if ret.AuthorizeData != nil {
-			w.Storage.RemoveAuthorizeData(ret.AuthorizeData.Code)
+			err := w.Storage.RemoveAuthorizeData(ret.AuthorizeData.Code)
+			if err != nil {
+				w.SetError(ErrServerError)
+				return
+			}
 		}
 
 		// remove previous access token
 		if ret.AccessGrant != nil {
 			if ret.AccessGrant.RefreshToken != "" {
-				w.Storage.RemoveRefreshGrant(ret.AccessGrant.RefreshToken)
+				err := w.Storage.RemoveRefreshGrant(ret.AccessGrant.RefreshToken)
+				if err != nil {
+					w.SetError(ErrServerError)
+					return
+				}
 			}
-			w.Storage.RemoveAccessGrant(ret.AccessGrant.AccessToken)
+			err := w.Storage.RemoveAccessGrant(ret.AccessGrant.AccessToken)
+			if err != nil {
+				w.SetError(ErrServerError)
+				return
+			}
 		}
 
 		// output data

@@ -88,10 +88,15 @@ type AuthorizeTokenGen interface {
 // HandleAuthorizeRequest is the main http.HandlerFunc for handling
 // authorization requests.
 func (s *Server) HandleAuthorizeRequest(w *Response, r *http.Request) *AuthorizeRequest {
-	r.ParseForm()
+	err := r.ParseForm()
+	if err != nil {
+		w.SetError(ErrInvalidRequest)
+		w.InternalError = err
+		return nil
+	}
 
 	// create the authorization request
-	unescapedUri, err := url.QueryUnescape(r.Form.Get("redirect_uri"))
+	unescapedURI, err := url.QueryUnescape(r.Form.Get("redirect_uri"))
 	if err != nil {
 		w.SetError(ErrInvalidRequest)
 		w.InternalError = err
@@ -101,7 +106,7 @@ func (s *Server) HandleAuthorizeRequest(w *Response, r *http.Request) *Authorize
 	ret := &AuthorizeRequest{
 		State:       r.Form.Get("state"),
 		Scope:       r.Form.Get("scope"),
-		RedirectURI: unescapedUri,
+		RedirectURI: unescapedURI,
 		Authorized:  false,
 		HttpRequest: r,
 	}
@@ -124,11 +129,11 @@ func (s *Server) HandleAuthorizeRequest(w *Response, r *http.Request) *Authorize
 
 	// check redirect uri, if there are multiple client redirect uri's
 	// don't set the uri
-	if ret.RedirectURI == "" && FirstUri(ret.Client.GetRedirectURI(), s.Config.RedirectURISeparator) == ret.Client.GetRedirectURI() {
-		ret.RedirectURI = FirstUri(ret.Client.GetRedirectURI(), s.Config.RedirectURISeparator)
+	if ret.RedirectURI == "" && firstURI(ret.Client.GetRedirectURI(), s.Config.RedirectURISeparator) == ret.Client.GetRedirectURI() {
+		ret.RedirectURI = firstURI(ret.Client.GetRedirectURI(), s.Config.RedirectURISeparator)
 	}
 
-	if err = ValidateUriList(ret.Client.GetRedirectURI(), ret.RedirectURI, s.Config.RedirectURISeparator); err != nil {
+	if err = ValidateURIList(ret.Client.GetRedirectURI(), ret.RedirectURI, s.Config.RedirectURISeparator); err != nil {
 		w.SetError(ErrInvalidRequest, ret.State)
 		w.InternalError = err
 		return nil

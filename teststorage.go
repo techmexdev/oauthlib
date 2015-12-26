@@ -21,7 +21,7 @@ func NewTestStorage(t *testing.T) *MemStorage {
 		RedirectURI: "http://localhost:14000/appauth",
 	})
 	if t != nil && err != nil {
-		t.Fatalf("error: %v", err)
+		t.Fatal(err)
 	}
 
 	err = ms.SaveAuthorizeData(&AuthorizeData{
@@ -32,7 +32,7 @@ func NewTestStorage(t *testing.T) *MemStorage {
 		RedirectURI: "http://localhost:14000/appauth",
 	})
 	if t != nil && err != nil {
-		t.Fatalf("error: %v", err)
+		t.Fatal(err)
 	}
 
 	err = ms.SaveAccessGrant(&AccessGrant{
@@ -43,7 +43,7 @@ func NewTestStorage(t *testing.T) *MemStorage {
 		CreatedAt:     time.Now(),
 	})
 	if t != nil && err != nil {
-		t.Fatalf("error: %v", err)
+		t.Fatal(err)
 	}
 
 	err = ms.SaveAccessGrant(&AccessGrant{
@@ -56,7 +56,7 @@ func NewTestStorage(t *testing.T) *MemStorage {
 		CreatedAt:     time.Now(),
 	})
 	if t != nil && err != nil {
-		t.Fatalf("error: %v", err)
+		t.Fatal(err)
 	}
 
 	ms.RefreshGrants["r9999"] = "9999"

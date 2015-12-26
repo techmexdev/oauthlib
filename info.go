@@ -14,7 +14,13 @@ type InfoRequest struct {
 // HandleInfoRequest is an http.HandlerFunc for server information
 // NOT an RFC specification.
 func (s *Server) HandleInfoRequest(w *Response, r *http.Request) *InfoRequest {
-	r.ParseForm()
+	err := r.ParseForm()
+	if err != nil {
+		w.SetError(ErrInvalidRequest)
+		w.InternalError = err
+		return nil
+	}
+
 	bearer := CheckBearerAuth(r)
 	if bearer == nil {
 		w.SetError(ErrInvalidRequest)
@@ -30,8 +36,6 @@ func (s *Server) HandleInfoRequest(w *Response, r *http.Request) *InfoRequest {
 		w.SetError(ErrInvalidRequest)
 		return nil
 	}
-
-	var err error
 
 	// load access data
 	ret.AccessGrant, err = w.Storage.LoadAccessGrant(ret.Code)

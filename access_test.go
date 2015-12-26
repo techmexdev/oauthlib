@@ -238,7 +238,10 @@ func TestGetClientWithoutMatcher(t *testing.T) {
 
 	storage := NewMemStorage()
 	storage.Logger = t.Logf
-	storage.SetClient(myclient.Id, myclient)
+	err := storage.SetClient(myclient.Id, myclient)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// Ensure bad secret fails
 	{
@@ -291,7 +294,10 @@ func TestGetClientSecretMatcher(t *testing.T) {
 
 	storage := NewMemStorage()
 	storage.Logger = t.Logf
-	storage.SetClient(myclient.Id, myclient)
+	err := storage.SetClient(myclient.Id, myclient)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// Ensure bad secret fails, but does not panic (doesn't call GetSecret)
 	{
