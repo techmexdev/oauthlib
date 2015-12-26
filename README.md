@@ -21,8 +21,12 @@ Install the package via the following:
   
     go get -u github.com/knq/oauthmw
 
-
 ## Example ##
 
 Currently the rewrite is a work in progress. Please see the [examples](./examples) 
 directory for the currently availaible examples.
+
+## Warning ##
+
+This is a substanial rewrite, and as of now the API is vastly in flux. Things
+may break an any given juncture, and oauthlib does not intend to remain static.
