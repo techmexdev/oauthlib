@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// GrantType is the type for OAuth param `grant_type`
+// GrantType are the OAuth param options for `grant_type`
 type GrantType string
 
 func (gt GrantType) String() string {
@@ -15,35 +15,68 @@ func (gt GrantType) String() string {
 }
 
 const (
+	// AuthorizationCodeGrant is the authorization_code grant type.
 	AuthorizationCodeGrant GrantType = "authorization_code"
-	RefreshTokenGrant      GrantType = "refresh_token"
-	PasswordGrant          GrantType = "password"
+
+	// RefreshTokenGrant is the refresh_token grant type.
+	RefreshTokenGrant GrantType = "refresh_token"
+
+	// PasswordGrant is the password grant type.
+	PasswordGrant GrantType = "password"
+
+	// ClientCredentialsGrant is the client_credentials grant type.
 	ClientCredentialsGrant GrantType = "client_credentials"
-	AssertionGrant         GrantType = "assertion"
-	ImplicitGrant          GrantType = "__implicit"
+
+	// AssertionGrant is the assertion grant type.
+	AssertionGrant GrantType = "assertion"
+
+	// ImplicitGrant is the __implicit grant type.
+	ImplicitGrant GrantType = "__implicit"
 )
 
-// AccessRequest is a request for access tokens
+// AccessRequest is a request for access tokens.
 type AccessRequest struct {
-	GrantType     GrantType
-	Code          string
-	Client        Client
+	// GrantType is the requested grant type.
+	GrantType GrantType
+
+	// Code is the request code.
+	Code string
+
+	// Client information.
+	Client Client
+
+	// AuthorizeData is the authorize data.
 	AuthorizeData *AuthorizeData
-	AccessGrant   *AccessGrant
 
-	// Force finish to use this access data, to allow access data reuse
+	// AccessGrant is the provided access grant.
+	AccessGrant *AccessGrant
+
+	// ForceAccessGrant if provided forces finish to use this access data, to
+	// allow access data reuse.
 	ForceAccessGrant *AccessGrant
-	RedirectURI      string
-	Scope            string
-	Username         string
-	Password         string
-	AssertionType    string
-	Assertion        string
 
-	// Set if request is authorized
+	// RedirectURI is the request redirect uri.
+	RedirectURI string
+
+	// Scope is the requested scope.
+	Scope string
+
+	// Username is the provided username in the request.
+	Username string
+
+	// Password is the provided password in the request.
+	Password string
+
+	// AssertionType is the provided assertion type in the request.
+	AssertionType string
+
+	// Assertion is the provided assertion in the request.
+	Assertion string
+
+	// Authorized toggles if request is authorized.
 	Authorized bool
 
-	// Token expiration in seconds. Change if different from default
+	// Expiration is the token expiration in seconds.
 	Expiration int32
 
 	// Set if a refresh token should be generated
@@ -51,9 +84,6 @@ type AccessRequest struct {
 
 	// Data to be passed to storage. Not used by the library.
 	UserData interface{}
-
-	// HttpRequest *http.Request for special use
-	//HttpRequest *http.Request
 }
 
 // AccessGrant represents an access grant (tokens, expiration, client, etc)
@@ -429,6 +459,7 @@ func (s *Server) handleAssertionRequest(w *Response, r *http.Request) *AccessReq
 	return ret
 }
 
+// FinishAccessRequest will finish the access request.
 func (s *Server) FinishAccessRequest(w *Response, r *http.Request, ar *AccessRequest) {
 	// don't process if is already an error
 	if w.IsError {

@@ -7,18 +7,21 @@ import (
 	"net/url"
 )
 
-// Data for response output
+// ResponseData for response output.
 type ResponseData map[string]interface{}
 
-// Response type enum
+// ResponseType enum.
 type ResponseType int
 
 const (
+	// DATA response type.
 	DATA ResponseType = iota
+
+	// REDIRECT response type.
 	REDIRECT
 )
 
-// Server response
+// Response is a server response.
 type Response struct {
 	ResponseType       ResponseType
 	StatusCode         int
@@ -36,6 +39,7 @@ type Response struct {
 	Storage Storage
 }
 
+// NewResponse builds a new server response.
 func NewResponse(storage Storage) *Response {
 	r := &Response{
 		ResponseType:   DATA,
@@ -79,23 +83,20 @@ func (r *Response) SetError(e *ResponseError, state ...string) {
 	}
 }
 
-// SetErrorUri sets an error id, description, state, and uri on the Response
-func (r *Response) SetErrorUri(id string, description string, uri string, state string) {
-}
-
-// SetErrorUri changes the response to redirect to the given url
+// SetRedirect changes the response to redirect to the given url.
 func (r *Response) SetRedirect(url string) {
 	// set redirect parameters
 	r.ResponseType = REDIRECT
 	r.URL = url
 }
 
-// SetRedirectFragment sets redirect values to be passed in fragment instead of as query parameters
+// SetRedirectFragment sets redirect values to be passed in fragment instead of
+// as query parameters.
 func (r *Response) SetRedirectFragment(f bool) {
 	r.RedirectInFragment = f
 }
 
-// GetRedirectUrl returns the redirect url with all query string parameters
+// GetRedirectUrl returns the redirect url with all query string parameters.
 func (r *Response) GetRedirectUrl() (string, error) {
 	if r.ResponseType != REDIRECT {
 		return "", errors.New("Not a redirect response")

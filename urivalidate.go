@@ -7,13 +7,16 @@ import (
 	"strings"
 )
 
-// error returned when validation don't match
+// UriValidationError is the error returned when the passed uri does not pass
+// validation.
 type UriValidationError string
 
+// Error satisfies the error interface.
 func (e UriValidationError) Error() string {
 	return string(e)
 }
 
+// newUriValidationError does something
 func newUriValidationError(msg string, base string, redirect string) UriValidationError {
 	return UriValidationError(fmt.Sprintf("%s: %s / %s", msg, base, redirect))
 }
@@ -99,16 +102,11 @@ func ValidateUri(baseUri string, redirectURI string) error {
 	return nil
 }
 
-// Returns the first uri from an uri list
-func FirstUri(baseUriList string, separator string) string {
-	if separator != "" {
-		slist := strings.Split(baseUriList, separator)
-		if len(slist) > 0 {
-			return slist[0]
-		}
-	} else {
+// FirstUri returns the first uri from an uri list.
+func FirstUri(baseUriList string, sep string) string {
+	if sep == "" {
 		return baseUriList
 	}
 
-	return ""
+	return strings.Split(baseUriList, sep)[0]
 }

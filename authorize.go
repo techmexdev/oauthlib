@@ -6,19 +6,29 @@ import (
 	"time"
 )
 
-// Authorize request information
+// AuthorizeRequest represents the authorize request information.
 type AuthorizeRequest struct {
-	Type        string
-	Client      Client
-	Scope       string
-	RedirectURI string
-	State       string
+	// Type is the type of the authorize request.
+	Type string
 
-	// Set if request is authorized
+	// Client is the client information.
+	Client Client
+
+	// Scope is the request scope.
+	Scope string
+
+	// RedirectURI is the redirect uri for the request.
+	RedirectURI string
+
+	// State is the passed state in the request.
+	State string
+
+	// Authorized toggles if request is authorized
 	Authorized bool
 
-	// Token expiration in seconds. Change if different from default.
-	// If type = TOKEN, this expiration will be for the ACCESS token.
+	// Expiration is the token expiration in seconds. Change if different from
+	// default. If type = "token", this expiration will be for the ACCESS
+	// token.
 	Expiration int32
 
 	// Data to be passed to storage. Not used by the library.
@@ -28,55 +38,55 @@ type AuthorizeRequest struct {
 	HttpRequest *http.Request
 }
 
-// Authorization data
+// AuthorizeData is the authorization data.
 type AuthorizeData struct {
-	// Client information
+	// Client information.
 	Client Client
 
-	// Authorization code
+	// Code is the authorization code.
 	Code string
 
-	// Token expiration in seconds
+	// ExpiresIn is the token expiration in seconds.
 	ExpiresIn int32
 
-	// Requested scope
+	// Scope is the requested scope.
 	Scope string
 
-	// Redirect Uri from request
+	// RedirectURI is the redirect uri from request.
 	RedirectURI string
 
-	// State data from request
+	// State is the passed state from request.
 	State string
 
-	// Date created
+	// CreatedAt is the creation time.
 	CreatedAt time.Time
 
 	// Data to be passed to storage. Not used by the library.
 	UserData interface{}
 }
 
-// IsExpired is true if authorization expired
+// IsExpired is true if authorization expired.
 func (d *AuthorizeData) IsExpired() bool {
 	return d.IsExpiredAt(time.Now())
 }
 
-// IsExpired is true if authorization expires at time 't'
+// IsExpiredAt is true if authorization expires at time 't'
 func (d *AuthorizeData) IsExpiredAt(t time.Time) bool {
 	return d.ExpireAt().Before(t)
 }
 
-// ExpireAt returns the expiration date
+// ExpireAt returns the expiration date.
 func (d *AuthorizeData) ExpireAt() time.Time {
 	return d.CreatedAt.Add(time.Duration(d.ExpiresIn) * time.Second)
 }
 
-// AuthorizeTokenGen is the token generator interface
+// AuthorizeTokenGen is the token generator interface.
 type AuthorizeTokenGen interface {
 	GenerateAuthorizeToken(data *AuthorizeData) (string, error)
 }
 
 // HandleAuthorizeRequest is the main http.HandlerFunc for handling
-// authorization requests
+// authorization requests.
 func (s *Server) HandleAuthorizeRequest(w *Response, r *http.Request) *AuthorizeRequest {
 	r.ParseForm()
 
@@ -145,6 +155,7 @@ func (s *Server) HandleAuthorizeRequest(w *Response, r *http.Request) *Authorize
 	return nil
 }
 
+// FinishAuthorizeRequest finishes the authorize request.
 func (s *Server) FinishAuthorizeRequest(w *Response, r *http.Request, ar *AuthorizeRequest) {
 	// don't process if is already an error
 	if w.IsError {

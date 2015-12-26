@@ -1,6 +1,6 @@
 package oauthlib
 
-// Client information
+// Client information.
 type Client interface {
 	// Client id
 	GetId() string
@@ -17,7 +17,7 @@ type Client interface {
 
 // ClientSecretMatcher is an optional interface clients can implement which
 // allows them to be the one to determine if a secret matches.  If a Client
-// implements ClientSecretMatcher, the framework will never call GetSecret
+// implements ClientSecretMatcher, the framework will never call GetSecret.
 type ClientSecretMatcher interface {
 	// SecretMatches returns true if the given secret matches
 	ClientSecretMatches(secret string) bool
@@ -25,29 +25,41 @@ type ClientSecretMatcher interface {
 
 // DefaultClient stores all data in struct variables
 type DefaultClient struct {
-	Id          string
-	Secret      string
+	// Id is the client id.
+	Id string
+
+	// Secret is the client secret.
+	Secret string
+
+	// RedirectURI is the redirect uri for the client.
 	RedirectURI string
-	UserData    interface{}
+
+	// UserData is the user data.
+	UserData interface{}
 }
 
+// GetId retrieves the client id.
 func (d *DefaultClient) GetId() string {
 	return d.Id
 }
 
+// GetSecret retrieves the client secret.
 func (d *DefaultClient) GetSecret() string {
 	return d.Secret
 }
 
+// GetRedirectURI retrieves the client redirect uri.
 func (d *DefaultClient) GetRedirectURI() string {
 	return d.RedirectURI
 }
 
+// GetUserData retrieves the user data.
 func (d *DefaultClient) GetUserData() interface{} {
 	return d.UserData
 }
 
-// Implement the ClientSecretMatcher interface
+// ClientSecretMatches provides compatibility with the ClientSecretMatcher
+// interface.
 func (d *DefaultClient) ClientSecretMatches(secret string) bool {
 	return d.Secret == secret
 }
