@@ -1,4 +1,4 @@
-# About oauthlib [![Build Status](https://travis-ci.org/knq/oauthlib.svg)](https://travis-ci.org/knq/oauthlib) [![Coverage Status](https://coveralls.io/repos/knq/oauthlib/badge  .svg?branch=master&service=github)](https://coveralls.io/github/knq/oauthlib?branch=master) #
+# About oauthlib [![Build Status](https://travis-ci.org/knq/oauthlib.svg)](https://travis-ci.org/knq/oauthlib) [![Coverage Status](https://coveralls.io/repos/knq/oauthlib/badge.svg?branch=master&service=github)](https://coveralls.io/github/knq/oauthlib?branch=master) #
 
 Package oauthlib is a [Golang](https://golang.org/project) oauth2 server
 library. The library attempts to follow as many Go idioms as possible, and be
