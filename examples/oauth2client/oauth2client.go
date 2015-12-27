@@ -1,9 +1,5 @@
 package main
 
-// Use golang.org/x/oauth2 client to test
-// Open url in browser:
-// http://localhost:14000/app
-
 import (
 	"fmt"
 	"net/http"
@@ -16,9 +12,7 @@ import (
 
 func main() {
 	config := oauthlib.NewConfig()
-	// goauth2 checks errors using status codes
 	config.HttpStatusCode = http.StatusNotFound
-
 	server := oauthlib.NewServer(config, oauthlib.NewTestStorage(nil))
 
 	client := &oauth2.Config{
@@ -31,7 +25,7 @@ func main() {
 		RedirectURL: "http://localhost:14000/appauth/code",
 	}
 
-	// Authorization code endpoint
+	// authorization code endpoint
 	http.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
 		resp := server.NewResponse()
 
@@ -48,7 +42,7 @@ func main() {
 		oauthlib.WriteJSON(w, resp)
 	})
 
-	// Access token endpoint
+	// access token endpoint
 	http.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
 		resp := server.NewResponse()
 
@@ -62,7 +56,7 @@ func main() {
 		oauthlib.WriteJSON(w, resp)
 	})
 
-	// Information endpoint
+	// information endpoint
 	http.HandleFunc("/info", func(w http.ResponseWriter, r *http.Request) {
 		resp := server.NewResponse()
 
@@ -72,10 +66,9 @@ func main() {
 		oauthlib.WriteJSON(w, resp)
 	})
 
-	// Application home endpoint
+	// application home endpoint
 	http.HandleFunc("/app", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("<html><body>"))
-		//w.Write([]byte(fmt.Sprintf("<a href=\"/authorize?response_type=code&client_id=1234&state=xyz&scope=everything&redirect_uri=%s\">Login</a><br/>", url.QueryEscape("http://localhost:14000/appauth/code"))))
 		w.Write([]byte(fmt.Sprintf("<a href=\"%s\">Login</a><br/>", client.AuthCodeURL(""))))
 		w.Write([]byte("</body></html>"))
 	})
@@ -85,7 +78,6 @@ func main() {
 		r.ParseForm()
 
 		code := r.Form.Get("code")
-
 		w.Write([]byte("<html><body>"))
 		w.Write([]byte("APP AUTH - CODE<br/>"))
 		defer w.Write([]byte("</body></html>"))

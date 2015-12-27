@@ -1,8 +1,5 @@
 package main
 
-// Open url in browser:
-// http://localhost:14000/app
-
 import (
 	"fmt"
 	"net/http"
@@ -16,7 +13,7 @@ func main() {
 	cfg := oauthlib.NewConfig()
 	server := oauthlib.NewServer(cfg, oauthlib.NewTestStorage(nil))
 
-	// Authorization code endpoint
+	// authorization code endpoint
 	http.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
 		resp := server.NewResponse()
 
@@ -33,7 +30,7 @@ func main() {
 		oauthlib.WriteJSON(w, resp)
 	})
 
-	// Access token endpoint
+	// access token endpoint
 	http.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
 		resp := server.NewResponse()
 
@@ -47,7 +44,7 @@ func main() {
 		oauthlib.WriteJSON(w, resp)
 	})
 
-	// Information endpoint
+	// information endpoint
 	http.HandleFunc("/info", func(w http.ResponseWriter, r *http.Request) {
 		resp := server.NewResponse()
 

@@ -296,7 +296,6 @@ func (s *Server) handleRefreshTokenRequest(w *Response, r *http.Request) *Access
 		Scope:           r.Form.Get("scope"),
 		GenerateRefresh: true,
 		Expiration:      s.Config.AccessExpiration,
-		//HttpRequest:     r,
 	}
 
 	// "refresh_token" is required
@@ -334,7 +333,7 @@ func (s *Server) handleRefreshTokenRequest(w *Response, r *http.Request) *Access
 	// client must be the same as the previous token
 	if ret.AccessGrant.Client.GetID() != ret.Client.GetID() {
 		w.SetError(ErrInvalidClient)
-		w.InternalError = errors.New("Client id must be the same from previous token")
+		w.InternalError = errors.New("client id must be the same from previous token")
 		return nil
 
 	}
