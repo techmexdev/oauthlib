@@ -49,7 +49,7 @@ func (c *AccessTokenGenJWT) GenerateAccessToken(data *oauthlib.AccessGrant, gene
 }
 
 func main() {
-	server := oauthlib.NewServer(oauthlib.NewServerConfig(), oauthlib.NewTestStorage(nil))
+	server := oauthlib.NewServer(oauthlib.NewConfig(), oauthlib.NewTestStorage(nil))
 	server.AccessTokenGen = &AccessTokenGenJWT{privatekey, publickey}
 
 	// Authorization code endpoint

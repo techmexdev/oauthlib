@@ -7,7 +7,7 @@ import (
 )
 
 func TestInfo(t *testing.T) {
-	sconfig := NewServerConfig()
+	sconfig := NewConfig()
 	server := NewServer(sconfig, NewTestStorage(t))
 	resp := server.NewResponse()
 
@@ -40,7 +40,7 @@ func TestInfo(t *testing.T) {
 }
 
 func TestInfoWhenCodeIsOnHeader(t *testing.T) {
-	sconfig := NewServerConfig()
+	sconfig := NewConfig()
 	server := NewServer(sconfig, NewTestStorage(t))
 	resp := server.NewResponse()
 

@@ -21,7 +21,7 @@ type BearerAuth struct {
 
 // Server is an OAuth2 implementation
 type Server struct {
-	Config            *ServerConfig
+	Config            *Config
 	Storage           Storage
 	AuthorizeTokenGen AuthorizeTokenGen
 	AccessTokenGen    AccessTokenGen
@@ -29,7 +29,7 @@ type Server struct {
 }
 
 // NewServer creates a new server instance
-func NewServer(config *ServerConfig, storage Storage) *Server {
+func NewServer(config *Config, storage Storage) *Server {
 	return &Server{
 		Config:            config,
 		Storage:           storage,

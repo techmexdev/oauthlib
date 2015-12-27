@@ -2,8 +2,8 @@ package oauthlib
 
 import "net/http"
 
-// ServerConfig contains server configuration information
-type ServerConfig struct {
+// Config contains server configuration information
+type Config struct {
 	// Authorization token expiration in seconds (default 5 minutes)
 	AuthorizationExpiration int32
 
@@ -29,8 +29,8 @@ type ServerConfig struct {
 }
 
 // isAuthorizeRequestTypeAllowed determines if the passed AuthorizedRequestType
-// is in the ServerConfig.AllowedAuthorizeRequestTypes
-func (c ServerConfig) isAuthorizeRequestTypeAllowed(at string) bool {
+// is in the Config.AllowedAuthorizeRequestTypes
+func (c Config) isAuthorizeRequestTypeAllowed(at string) bool {
 	for _, k := range c.AllowedAuthorizeRequestTypes {
 		if k == at {
 			return true
@@ -40,8 +40,8 @@ func (c ServerConfig) isAuthorizeRequestTypeAllowed(at string) bool {
 }
 
 // isGrantTypeAllowed determines if the passed AuthorizedRequestType is in the
-// ServerConfig.AllowedGrantTypes
-func (c ServerConfig) isGrantTypeAllowed(gt GrantType) bool {
+// Config.AllowedGrantTypes
+func (c Config) isGrantTypeAllowed(gt GrantType) bool {
 	for _, k := range c.AllowedGrantTypes {
 		if k == gt {
 			return true
@@ -50,9 +50,9 @@ func (c ServerConfig) isGrantTypeAllowed(gt GrantType) bool {
 	return false
 }
 
-// NewServerConfig returns a new ServerConfig with default configuration
-func NewServerConfig() *ServerConfig {
-	return &ServerConfig{
+// NewConfig returns a new Config with default configuration
+func NewConfig() *Config {
+	return &Config{
 		AuthorizationExpiration:      250,
 		AccessExpiration:             3600,
 		TokenType:                    "Bearer",

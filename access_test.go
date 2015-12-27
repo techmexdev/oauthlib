@@ -7,7 +7,7 @@ import (
 )
 
 func TestAccessAuthorizationCode(t *testing.T) {
-	sconfig := NewServerConfig()
+	sconfig := NewConfig()
 	sconfig.AllowedGrantTypes = []GrantType{AuthorizationCodeGrant}
 	server := NewServer(sconfig, NewTestStorage(t))
 	server.AccessTokenGen = &TestingAccessTokenGen{}
@@ -54,7 +54,7 @@ func TestAccessAuthorizationCode(t *testing.T) {
 }
 
 func TestAccessRefreshToken(t *testing.T) {
-	sconfig := NewServerConfig()
+	sconfig := NewConfig()
 	sconfig.AllowedGrantTypes = []GrantType{RefreshTokenGrant}
 	server := NewServer(sconfig, NewTestStorage(t))
 	server.AccessTokenGen = &TestingAccessTokenGen{}
@@ -101,7 +101,7 @@ func TestAccessRefreshToken(t *testing.T) {
 }
 
 func TestAccessPassword(t *testing.T) {
-	sconfig := NewServerConfig()
+	sconfig := NewConfig()
 	sconfig.AllowedGrantTypes = []GrantType{PasswordGrant}
 	server := NewServer(sconfig, NewTestStorage(t))
 	server.AccessTokenGen = &TestingAccessTokenGen{}
@@ -149,7 +149,7 @@ func TestAccessPassword(t *testing.T) {
 }
 
 func TestAccessClientCredentials(t *testing.T) {
-	sconfig := NewServerConfig()
+	sconfig := NewConfig()
 	sconfig.AllowedGrantTypes = []GrantType{ClientCredentialsGrant}
 	server := NewServer(sconfig, NewTestStorage(t))
 	server.AccessTokenGen = &TestingAccessTokenGen{}

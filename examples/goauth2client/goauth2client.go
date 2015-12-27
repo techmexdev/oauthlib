@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	config := oauthlib.NewServerConfig()
+	config := oauthlib.NewConfig()
 	// goauth2 checks errors using status codes
 	config.HttpStatusCode = http.StatusNotFound
 

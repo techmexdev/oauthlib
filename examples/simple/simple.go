@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	cfg := oauthlib.NewServerConfig()
+	cfg := oauthlib.NewConfig()
 	server := oauthlib.NewServer(cfg, oauthlib.NewTestStorage(nil))
 
 	// Authorization code endpoint

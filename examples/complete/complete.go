@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	sconfig := oauthlib.NewServerConfig()
+	sconfig := oauthlib.NewConfig()
 	sconfig.AllowedAuthorizeRequestTypes = []string{"code", "token"}
 	sconfig.AllowedGrantTypes = []oauthlib.GrantType{
 		oauthlib.AuthorizationCodeGrant,
