@@ -23,7 +23,7 @@ type AccessTokenGenJWT struct {
 func (c *AccessTokenGenJWT) GenerateAccessToken(data *oauthlib.AccessGrant, generaterefresh bool) (accesstoken string, refreshtoken string, err error) {
 	// generate JWT access token
 	token := jwt.New(jwt.GetSigningMethod("RS256"))
-	token.Claims["cid"] = data.Client.GetId()
+	token.Claims["cid"] = data.Client.GetID()
 	token.Claims["exp"] = data.ExpireAt().Unix()
 
 	accesstoken, err = token.SignedString(c.PrivateKey)
@@ -37,7 +37,7 @@ func (c *AccessTokenGenJWT) GenerateAccessToken(data *oauthlib.AccessGrant, gene
 
 	// generate JWT access token
 	token = jwt.New(jwt.GetSigningMethod("RS256"))
-	token.Claims["cid"] = data.Client.GetId()
+	token.Claims["cid"] = data.Client.GetID()
 	token.Claims["at"] = accesstoken
 	token.Claims["exp"] = data.ExpireAt().Unix()
 
