@@ -17,11 +17,11 @@ func HandleLoginPage(ar *oauthlib.AuthorizeRequest, w http.ResponseWriter, r *ht
 	}
 
 	w.Write([]byte("<html><body>"))
-	w.Write([]byte(fmt.Sprintf("LOGIN %s (use test/test)<br/>", ar.Client.GetId())))
+	w.Write([]byte(fmt.Sprintf("LOGIN %s (use test/test)<br/>", ar.Client.GetID())))
 	w.Write([]byte(fmt.Sprintf(
 		"<form action=\"/authorize?response_type=%s&client_id=%s&state=%s&redirect_uri=%s\" method=\"POST\">",
 		ar.Type,
-		ar.Client.GetId(),
+		ar.Client.GetID(),
 		ar.State,
 		url.QueryEscape(ar.RedirectURI),
 	)))

@@ -72,7 +72,7 @@ func (s *Server) FinishInfoRequest(w *Response, r *http.Request, ir *InfoRequest
 	}
 
 	// output data
-	w.Output["client_id"] = ir.AccessGrant.Client.GetId()
+	w.Output["client_id"] = ir.AccessGrant.Client.GetID()
 	w.Output["access_token"] = ir.AccessGrant.AccessToken
 	w.Output["token_type"] = s.Config.TokenType
 	w.Output["expires_in"] = ir.AccessGrant.CreatedAt.Add(time.Duration(ir.AccessGrant.ExpiresIn)*time.Second).Sub(s.Now()) / time.Second

@@ -3,7 +3,7 @@ package oauthlib
 // Client information.
 type Client interface {
 	// Client id
-	GetId() string
+	GetID() string
 
 	// Client secret
 	GetSecret() string
@@ -25,8 +25,8 @@ type ClientSecretMatcher interface {
 
 // DefaultClient stores all data in struct variables
 type DefaultClient struct {
-	// Id is the client id.
-	Id string
+	// ID is the client id.
+	ID string
 
 	// Secret is the client secret.
 	Secret string
@@ -38,9 +38,9 @@ type DefaultClient struct {
 	UserData interface{}
 }
 
-// GetId retrieves the client id.
-func (d *DefaultClient) GetId() string {
-	return d.Id
+// GetID retrieves the client id.
+func (d *DefaultClient) GetID() string {
+	return d.ID
 }
 
 // GetSecret retrieves the client secret.

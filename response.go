@@ -31,7 +31,7 @@ type Response struct {
 	Output             ResponseData
 	Headers            http.Header
 	IsError            bool
-	ErrorId            string
+	ErrorType          string
 	InternalError      error
 	RedirectInFragment bool
 
@@ -43,8 +43,8 @@ type Response struct {
 func NewResponse(storage Storage) *Response {
 	r := &Response{
 		ResponseType:   DATA,
-		StatusCode:     200,
-		HttpStatusCode: 200,
+		StatusCode:     http.StatusOK,
+		HttpStatusCode: http.StatusOK,
 		Output:         make(ResponseData),
 		Headers:        make(http.Header),
 		IsError:        false,
@@ -64,7 +64,7 @@ func NewResponse(storage Storage) *Response {
 func (r *Response) SetError(e *ResponseError, state ...string) {
 	// set error parameters
 	r.IsError = true
-	r.ErrorId = e.Type
+	r.ErrorType = e.Type
 	r.StatusCode = r.HttpStatusCode
 	if r.StatusCode != http.StatusOK {
 		r.StatusText = e.Desc
@@ -86,7 +86,7 @@ func (r *Response) SetError(e *ResponseError, state ...string) {
 // GetRedirectURL returns the redirect url with all query string parameters.
 func (r *Response) GetRedirectURL() (string, error) {
 	if r.ResponseType != REDIRECT {
-		return "", errors.New("Not a redirect response")
+		return "", errors.New("not a redirect response")
 	}
 
 	u, err := url.Parse(r.URL)
@@ -99,6 +99,8 @@ func (r *Response) GetRedirectURL() (string, error) {
 	for n, v := range r.Output {
 		q.Set(n, fmt.Sprint(v))
 	}
+
+	// manage redirect
 	if r.RedirectInFragment {
 		u.RawQuery = ""
 		u.Fragment, err = url.QueryUnescape(q.Encode())

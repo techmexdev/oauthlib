@@ -16,7 +16,7 @@ func NewTestStorage(t *testing.T) *MemStorage {
 	}
 
 	err := ms.SetClient("1234", &DefaultClient{
-		Id:          "1234",
+		ID:          "1234",
 		Secret:      "aabbccdd",
 		RedirectURI: "http://localhost:14000/appauth",
 	})

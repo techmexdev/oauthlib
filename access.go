@@ -238,7 +238,7 @@ func (s *Server) handleAuthorizationCodeRequest(w *Response, r *http.Request) *A
 	}
 
 	// code must be from the client
-	if ret.AuthorizeData.Client.GetId() != ret.Client.GetId() {
+	if ret.AuthorizeData.Client.GetID() != ret.Client.GetID() {
 		w.SetError(ErrInvalidGrant)
 		return nil
 	}
@@ -339,7 +339,7 @@ func (s *Server) handleRefreshTokenRequest(w *Response, r *http.Request) *Access
 	}
 
 	// client must be the same as the previous token
-	if ret.AccessGrant.Client.GetId() != ret.Client.GetId() {
+	if ret.AccessGrant.Client.GetID() != ret.Client.GetID() {
 		w.SetError(ErrInvalidClient)
 		w.InternalError = errors.New("Client id must be the same from previous token")
 		return nil

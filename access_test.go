@@ -219,26 +219,26 @@ func TestExtraScopes(t *testing.T) {
 
 // clientWithoutMatcher just implements the base Client interface
 type clientWithoutMatcher struct {
-	Id          string
+	ID          string
 	Secret      string
 	RedirectURI string
 }
 
-func (c *clientWithoutMatcher) GetId() string            { return c.Id }
+func (c *clientWithoutMatcher) GetID() string            { return c.ID }
 func (c *clientWithoutMatcher) GetSecret() string        { return c.Secret }
 func (c *clientWithoutMatcher) GetRedirectURI() string   { return c.RedirectURI }
 func (c *clientWithoutMatcher) GetUserData() interface{} { return nil }
 
 func TestGetClientWithoutMatcher(t *testing.T) {
 	myclient := &clientWithoutMatcher{
-		Id:          "myclient",
+		ID:          "myclient",
 		Secret:      "myclientsecret",
 		RedirectURI: "http://www.example.com",
 	}
 
 	storage := NewMemStorage()
 	storage.Logger = t.Logf
-	err := storage.SetClient(myclient.Id, myclient)
+	err := storage.SetClient(myclient.ID, myclient)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -272,12 +272,12 @@ func TestGetClientWithoutMatcher(t *testing.T) {
 
 // clientWithMatcher implements the base Client interface and the ClientSecretMatcher interface
 type clientWithMatcher struct {
-	Id          string
+	ID          string
 	Secret      string
 	RedirectURI string
 }
 
-func (c *clientWithMatcher) GetId() string            { return c.Id }
+func (c *clientWithMatcher) GetID() string            { return c.ID }
 func (c *clientWithMatcher) GetSecret() string        { panic("called GetSecret"); return "" }
 func (c *clientWithMatcher) GetRedirectURI() string   { return c.RedirectURI }
 func (c *clientWithMatcher) GetUserData() interface{} { return nil }
@@ -287,14 +287,14 @@ func (c *clientWithMatcher) ClientSecretMatches(secret string) bool {
 
 func TestGetClientSecretMatcher(t *testing.T) {
 	myclient := &clientWithMatcher{
-		Id:          "myclient",
+		ID:          "myclient",
 		Secret:      "myclientsecret",
 		RedirectURI: "http://www.example.com",
 	}
 
 	storage := NewMemStorage()
 	storage.Logger = t.Logf
-	err := storage.SetClient(myclient.Id, myclient)
+	err := storage.SetClient(myclient.ID, myclient)
 	if err != nil {
 		t.Fatal(err)
 	}
