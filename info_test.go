@@ -15,7 +15,7 @@ func TestInfo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	req.Form = make(url.Values)
+	req.Form = url.Values{}
 	req.Form.Set("code", "9999")
 
 	if ar := server.HandleInfoRequest(resp, req); ar != nil {

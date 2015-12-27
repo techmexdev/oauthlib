@@ -19,11 +19,11 @@ func TestAccessAuthorizationCode(t *testing.T) {
 	}
 	req.SetBasicAuth("1234", "aabbccdd")
 
-	req.Form = make(url.Values)
+	req.Form = url.Values{}
+	req.PostForm = url.Values{}
 	req.Form.Set("grant_type", string(AuthorizationCodeGrant))
 	req.Form.Set("code", "9999")
 	req.Form.Set("state", "a")
-	req.PostForm = make(url.Values)
 
 	if ar := server.HandleAccessRequest(resp, req); ar != nil {
 		ar.Authorized = true
@@ -66,11 +66,11 @@ func TestAccessRefreshToken(t *testing.T) {
 	}
 	req.SetBasicAuth("1234", "aabbccdd")
 
-	req.Form = make(url.Values)
+	req.Form = url.Values{}
+	req.PostForm = url.Values{}
 	req.Form.Set("grant_type", string(RefreshTokenGrant))
 	req.Form.Set("refresh_token", "r9999")
 	req.Form.Set("state", "a")
-	req.PostForm = make(url.Values)
 
 	if ar := server.HandleAccessRequest(resp, req); ar != nil {
 		ar.Authorized = true
@@ -113,12 +113,12 @@ func TestAccessPassword(t *testing.T) {
 	}
 	req.SetBasicAuth("1234", "aabbccdd")
 
-	req.Form = make(url.Values)
+	req.Form = url.Values{}
+	req.PostForm = url.Values{}
 	req.Form.Set("grant_type", string(PasswordGrant))
 	req.Form.Set("username", "testing")
 	req.Form.Set("password", "testing")
 	req.Form.Set("state", "a")
-	req.PostForm = make(url.Values)
 
 	if ar := server.HandleAccessRequest(resp, req); ar != nil {
 		ar.Authorized = ar.Username == "testing" && ar.Password == "testing"
@@ -161,10 +161,10 @@ func TestAccessClientCredentials(t *testing.T) {
 	}
 	req.SetBasicAuth("1234", "aabbccdd")
 
-	req.Form = make(url.Values)
+	req.Form = url.Values{}
+	req.PostForm = url.Values{}
 	req.Form.Set("grant_type", string(ClientCredentialsGrant))
 	req.Form.Set("state", "a")
-	req.PostForm = make(url.Values)
 
 	if ar := server.HandleAccessRequest(resp, req); ar != nil {
 		ar.Authorized = true

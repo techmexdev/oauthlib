@@ -45,8 +45,8 @@ func NewResponse(storage Storage) *Response {
 		ResponseType:   DATA,
 		StatusCode:     http.StatusOK,
 		HttpStatusCode: http.StatusOK,
-		Output:         make(ResponseData),
-		Headers:        make(http.Header),
+		Output:         ResponseData{},
+		Headers:        http.Header{},
 		IsError:        false,
 		Storage:        storage,
 	}
@@ -71,7 +71,7 @@ func (r *Response) SetError(e *ResponseError, state ...string) {
 	} else {
 		r.StatusText = ""
 	}
-	r.Output = make(ResponseData) // clear output
+	r.Output = ResponseData{} // clear output
 	r.Output["error"] = e.Type
 	r.Output["error_description"] = e.Desc
 	/*if uri != "" {

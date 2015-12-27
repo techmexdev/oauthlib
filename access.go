@@ -247,7 +247,7 @@ func (s *Server) handleAuthorizationCodeRequest(w *Response, r *http.Request) *A
 	}
 	if ret.AuthorizeData.RedirectURI != ret.RedirectURI {
 		w.SetError(ErrInvalidRequest)
-		w.InternalError = errors.New("Redirect uri is different")
+		w.InternalError = errors.New("redirect uri is different")
 		return nil
 	}
 

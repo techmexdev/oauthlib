@@ -60,14 +60,11 @@ func newURIValidationError(msg string, base string, redirect string) URIValidati
 // validateURIList validates that redirectURI is contained in baseURI.
 // baseURIList may be a string separated by separator.
 // If separator is blank, validate only 1 URI.
-func validateURIList(baseURI string, redirectURI string, separator string) error {
+func validateURIList(baseURI string, redirectURI string, sep string) error {
 	// make a list of uris
-	var slist []string
-	if separator != "" {
-		slist = strings.Split(baseURI, separator)
-	} else {
-		slist = make([]string, 0)
-		slist = append(slist, baseURI)
+	slist := []string{baseURI}
+	if sep != "" {
+		slist = strings.Split(baseURI, sep)
 	}
 
 	for _, sitem := range slist {

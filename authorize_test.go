@@ -17,7 +17,7 @@ func TestAuthorizeCode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	req.Form = make(url.Values)
+	req.Form = url.Values{}
 	req.Form.Set("response_type", "code")
 	req.Form.Set("client_id", "1234")
 	req.Form.Set("state", "a")
@@ -56,7 +56,7 @@ func TestAuthorizeToken(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	req.Form = make(url.Values)
+	req.Form = url.Values{}
 	req.Form.Set("response_type", "token")
 	req.Form.Set("client_id", "1234")
 	req.Form.Set("state", "a")

@@ -17,11 +17,13 @@ func TestGetClientAuth(t *testing.T) {
 	urlWithEmptySecret, _ := url.Parse("http://host.tld/path?client_id=xxx&client_secret=")
 	urlNoSecret, _ := url.Parse("http://host.tld/path?client_id=xxx")
 
-	headerNoAuth := make(http.Header)
-	headerBadAuth := make(http.Header)
-	headerBadAuth.Set("Authorization", badAuthValue)
-	headerOKAuth := make(http.Header)
-	headerOKAuth.Set("Authorization", goodAuthValue)
+	headerNoAuth := http.Header{}
+	headerBadAuth := http.Header{
+		"Authorization": []string{badAuthValue},
+	}
+	headerOKAuth := http.Header{
+		"Authorization": []string{goodAuthValue},
+	}
 
 	var tests = []struct {
 		header     http.Header
@@ -70,7 +72,7 @@ func TestGetClientAuth(t *testing.T) {
 
 func TestBasicAuth(t *testing.T) {
 	s := &Server{}
-	r := &http.Request{Header: make(http.Header)}
+	r := &http.Request{Header: http.Header{}}
 
 	// Without any header
 	if b, err := s.checkBasicAuth(r); b != nil || err != nil {
@@ -101,7 +103,7 @@ func TestBasicAuth(t *testing.T) {
 
 func TestBearerAuth(t *testing.T) {
 	s := &Server{}
-	r := &http.Request{Header: make(http.Header)}
+	r := &http.Request{Header: http.Header{}}
 
 	// Without any header
 	if b := s.checkBearerAuth(r); b != nil {
