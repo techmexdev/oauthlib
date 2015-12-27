@@ -5,15 +5,15 @@ import (
 	"time"
 )
 
-// InfoRequest is a request for information about some AccessGrant
-type InfoRequest struct {
+// InfoReq is a request for information about some AccessGrant
+type InfoReq struct {
 	Code        string       // Code to look up
 	AccessGrant *AccessGrant // AccessGrant associated with Code
 }
 
-// HandleInfoRequest is an http.HandlerFunc for server information
+// HandleInfoReq is an http.HandlerFunc for server information
 // NOT an RFC specification.
-func (s *Server) HandleInfoRequest(w *Response, r *http.Request) *InfoRequest {
+func (s *Server) HandleInfoReq(w *Response, r *http.Request) *InfoReq {
 	err := r.ParseForm()
 	if err != nil {
 		w.SetError(ErrInvalidRequest)
@@ -28,7 +28,7 @@ func (s *Server) HandleInfoRequest(w *Response, r *http.Request) *InfoRequest {
 	}
 
 	// generate info request
-	ret := &InfoRequest{
+	ret := &InfoReq{
 		Code: bearer.Code,
 	}
 
@@ -64,8 +64,8 @@ func (s *Server) HandleInfoRequest(w *Response, r *http.Request) *InfoRequest {
 	return ret
 }
 
-// FinishInfoRequest finalizes the request handled by HandleInfoRequest
-func (s *Server) FinishInfoRequest(w *Response, r *http.Request, ir *InfoRequest) {
+// FinishInfoReq finalizes the request handled by HandleInfoReq
+func (s *Server) FinishInfoReq(w *Response, r *http.Request, ir *InfoReq) {
 	// don't process if is already an error
 	if w.IsError {
 		return

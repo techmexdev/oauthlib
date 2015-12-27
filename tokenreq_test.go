@@ -25,9 +25,9 @@ func TestAccessAuthorizationCode(t *testing.T) {
 	req.Form.Set("code", "9999")
 	req.Form.Set("state", "a")
 
-	if ar := server.HandleAccessRequest(resp, req); ar != nil {
+	if ar := server.HandleTokenReq(resp, req); ar != nil {
 		ar.Authorized = true
-		server.FinishAccessRequest(resp, req, ar)
+		server.FinishTokenReq(resp, req, ar)
 	}
 
 	//fmt.Printf("%+v", resp)
@@ -72,9 +72,9 @@ func TestAccessRefreshToken(t *testing.T) {
 	req.Form.Set("refresh_token", "r9999")
 	req.Form.Set("state", "a")
 
-	if ar := server.HandleAccessRequest(resp, req); ar != nil {
+	if ar := server.HandleTokenReq(resp, req); ar != nil {
 		ar.Authorized = true
-		server.FinishAccessRequest(resp, req, ar)
+		server.FinishTokenReq(resp, req, ar)
 	}
 
 	//fmt.Printf("%+v", resp)
@@ -120,9 +120,9 @@ func TestAccessPassword(t *testing.T) {
 	req.Form.Set("password", "testing")
 	req.Form.Set("state", "a")
 
-	if ar := server.HandleAccessRequest(resp, req); ar != nil {
+	if ar := server.HandleTokenReq(resp, req); ar != nil {
 		ar.Authorized = ar.Username == "testing" && ar.Password == "testing"
-		server.FinishAccessRequest(resp, req, ar)
+		server.FinishTokenReq(resp, req, ar)
 	}
 
 	//fmt.Printf("%+v", resp)
@@ -166,9 +166,9 @@ func TestAccessClientCredentials(t *testing.T) {
 	req.Form.Set("grant_type", string(ClientCredentialsGrant))
 	req.Form.Set("state", "a")
 
-	if ar := server.HandleAccessRequest(resp, req); ar != nil {
+	if ar := server.HandleTokenReq(resp, req); ar != nil {
 		ar.Authorized = true
-		server.FinishAccessRequest(resp, req, ar)
+		server.FinishTokenReq(resp, req, ar)
 	}
 
 	//fmt.Printf("%+v", resp)

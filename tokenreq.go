@@ -34,8 +34,8 @@ const (
 	ImplicitGrant GrantType = "__implicit"
 )
 
-// AccessRequest is a request for access tokens.
-type AccessRequest struct {
+// TokenReq is a request for access tokens.
+type TokenReq struct {
 	// GrantType is the requested grant type.
 	GrantType GrantType
 
@@ -139,8 +139,8 @@ type AccessTokenGen interface {
 	GenerateAccessToken(data *AccessGrant, generaterefresh bool) (accesstoken string, refreshtoken string, err error)
 }
 
-// HandleAccessRequest is the http.HandlerFunc for handling access token requests
-func (s *Server) HandleAccessRequest(w *Response, r *http.Request) *AccessRequest {
+// HandleTokenReq is the http.HandlerFunc for handling access token requests
+func (s *Server) HandleTokenReq(w *Response, r *http.Request) *TokenReq {
 	if r.Method != "POST" {
 		w.SetError(ErrInvalidRequest)
 		w.InternalError = errors.New("request must be POST")
@@ -177,7 +177,7 @@ func (s *Server) HandleAccessRequest(w *Response, r *http.Request) *AccessReques
 	return nil
 }
 
-func (s *Server) handleAuthorizationCodeRequest(w *Response, r *http.Request) *AccessRequest {
+func (s *Server) handleAuthorizationCodeRequest(w *Response, r *http.Request) *TokenReq {
 	// get client authentication
 	auth := s.getClientAuth(w, r)
 	if auth == nil {
@@ -185,7 +185,7 @@ func (s *Server) handleAuthorizationCodeRequest(w *Response, r *http.Request) *A
 	}
 
 	// generate access token
-	ret := &AccessRequest{
+	ret := &TokenReq{
 		GrantType:       AuthorizationCodeGrant,
 		Code:            r.Form.Get("code"),
 		RedirectURI:     r.Form.Get("redirect_uri"),
@@ -282,7 +282,7 @@ func extraScopes(accessScopes, refreshScopes string) bool {
 	return false
 }
 
-func (s *Server) handleRefreshTokenRequest(w *Response, r *http.Request) *AccessRequest {
+func (s *Server) handleRefreshTokenRequest(w *Response, r *http.Request) *TokenReq {
 	// get client authentication
 	auth := s.getClientAuth(w, r)
 	if auth == nil {
@@ -290,7 +290,7 @@ func (s *Server) handleRefreshTokenRequest(w *Response, r *http.Request) *Access
 	}
 
 	// generate access token
-	ret := &AccessRequest{
+	ret := &TokenReq{
 		GrantType:       RefreshTokenGrant,
 		Code:            r.Form.Get("refresh_token"),
 		Scope:           r.Form.Get("scope"),
@@ -372,7 +372,7 @@ func (s *Server) getClientAuth(w *Response, r *http.Request) *BasicAuth {
 	return auth
 }
 
-func (s *Server) handlePasswordRequest(w *Response, r *http.Request) *AccessRequest {
+func (s *Server) handlePasswordRequest(w *Response, r *http.Request) *TokenReq {
 	// get client auth
 	auth := s.getClientAuth(w, r)
 	if auth == nil {
@@ -380,7 +380,7 @@ func (s *Server) handlePasswordRequest(w *Response, r *http.Request) *AccessRequ
 	}
 
 	// generate access token
-	ret := &AccessRequest{
+	ret := &TokenReq{
 		GrantType:       PasswordGrant,
 		Username:        r.Form.Get("username"),
 		Password:        r.Form.Get("password"),
@@ -407,7 +407,7 @@ func (s *Server) handlePasswordRequest(w *Response, r *http.Request) *AccessRequ
 	return ret
 }
 
-func (s *Server) handleClientCredentialsRequest(w *Response, r *http.Request) *AccessRequest {
+func (s *Server) handleClientCredentialsRequest(w *Response, r *http.Request) *TokenReq {
 	// get client authentication
 	auth := s.getClientAuth(w, r)
 	if auth == nil {
@@ -415,7 +415,7 @@ func (s *Server) handleClientCredentialsRequest(w *Response, r *http.Request) *A
 	}
 
 	// generate access token
-	ret := &AccessRequest{
+	ret := &TokenReq{
 		GrantType:       ClientCredentialsGrant,
 		Scope:           r.Form.Get("scope"),
 		GenerateRefresh: false,
@@ -434,7 +434,7 @@ func (s *Server) handleClientCredentialsRequest(w *Response, r *http.Request) *A
 	return ret
 }
 
-func (s *Server) handleAssertionRequest(w *Response, r *http.Request) *AccessRequest {
+func (s *Server) handleAssertionRequest(w *Response, r *http.Request) *TokenReq {
 	// get client authentication
 	auth := s.getClientAuth(w, r)
 	if auth == nil {
@@ -442,7 +442,7 @@ func (s *Server) handleAssertionRequest(w *Response, r *http.Request) *AccessReq
 	}
 
 	// generate access token
-	ret := &AccessRequest{
+	ret := &TokenReq{
 		GrantType:       AssertionGrant,
 		Scope:           r.Form.Get("scope"),
 		AssertionType:   r.Form.Get("assertion_type"),
@@ -469,14 +469,14 @@ func (s *Server) handleAssertionRequest(w *Response, r *http.Request) *AccessReq
 	return ret
 }
 
-// FinishAccessRequest will finish the access request.
-func (s *Server) FinishAccessRequest(w *Response, r *http.Request, ar *AccessRequest) {
+// FinishTokenReq will finish the access request.
+func (s *Server) FinishTokenReq(w *Response, r *http.Request, ar *TokenReq) {
 	// don't process if is already an error
 	if w.IsError {
 		return
 	}
 	redirectURI := r.Form.Get("redirect_uri")
-	// Get redirect uri from AccessRequest if it's there (e.g., refresh token request)
+	// Get redirect uri from TokenReq if it's there (e.g., refresh token request)
 	if ar.RedirectURI != "" {
 		redirectURI = ar.RedirectURI
 	}
