@@ -172,7 +172,7 @@ func (s *Server) FinishAuthorizeRequest(w *Response, r *http.Request, ar *Author
 
 	if ar.Authorized {
 		if ar.Type == "token" {
-			w.SetRedirectFragment(true)
+			w.RedirectInFragment = true
 
 			// generate token directly
 			ret := &AccessRequest{

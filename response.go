@@ -90,12 +90,6 @@ func (r *Response) SetRedirect(url string) {
 	r.URL = url
 }
 
-// SetRedirectFragment sets redirect values to be passed in fragment instead of
-// as query parameters.
-func (r *Response) SetRedirectFragment(f bool) {
-	r.RedirectInFragment = f
-}
-
 // GetRedirectURL returns the redirect url with all query string parameters.
 func (r *Response) GetRedirectURL() (string, error) {
 	if r.ResponseType != REDIRECT {
