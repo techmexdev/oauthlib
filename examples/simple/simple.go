@@ -14,9 +14,6 @@ import (
 
 func main() {
 	cfg := oauthlib.NewServerConfig()
-	cfg.AllowGetAccessRequest = true
-	cfg.AllowClientSecretInParams = true
-
 	server := oauthlib.NewServer(cfg, oauthlib.NewTestStorage(nil))
 
 	// Authorization code endpoint

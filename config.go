@@ -23,13 +23,6 @@ type ServerConfig struct {
 	// Only used if response was created from server
 	HttpStatusCode int
 
-	// If true allows client secret also in params, else only in
-	// Authorization header - default false
-	AllowClientSecretInParams bool
-
-	// If true allows access request using GET, else only POST - default false
-	AllowGetAccessRequest bool
-
 	// Separator to support multiple URIs in Client.GetRedirectURI().
 	// If blank (the default), don't allow multiple URIs.
 	RedirectURISeparator string
@@ -66,7 +59,5 @@ func NewServerConfig() *ServerConfig {
 		AllowedAuthorizeRequestTypes: []string{"code"},
 		AllowedGrantTypes:            []GrantType{AuthorizationCodeGrant},
 		HttpStatusCode:               http.StatusOK,
-		AllowClientSecretInParams:    false,
-		AllowGetAccessRequest:        false,
 	}
 }

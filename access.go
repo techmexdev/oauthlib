@@ -141,16 +141,9 @@ type AccessTokenGen interface {
 
 // HandleAccessRequest is the http.HandlerFunc for handling access token requests
 func (s *Server) HandleAccessRequest(w *Response, r *http.Request) *AccessRequest {
-	// Only allow GET or POST
-	if r.Method == "GET" {
-		if !s.Config.AllowGetAccessRequest {
-			w.SetError(ErrInvalidRequest)
-			w.InternalError = errors.New("Request must be POST")
-			return nil
-		}
-	} else if r.Method != "POST" {
+	if r.Method != "POST" {
 		w.SetError(ErrInvalidRequest)
-		w.InternalError = errors.New("Request must be POST")
+		w.InternalError = errors.New("request must be POST")
 		return nil
 	}
 
@@ -186,7 +179,7 @@ func (s *Server) HandleAccessRequest(w *Response, r *http.Request) *AccessReques
 
 func (s *Server) handleAuthorizationCodeRequest(w *Response, r *http.Request) *AccessRequest {
 	// get client authentication
-	auth := getClientAuth(w, r, s.Config.AllowClientSecretInParams)
+	auth := s.getClientAuth(w, r)
 	if auth == nil {
 		return nil
 	}
@@ -291,7 +284,7 @@ func extraScopes(accessScopes, refreshScopes string) bool {
 
 func (s *Server) handleRefreshTokenRequest(w *Response, r *http.Request) *AccessRequest {
 	// get client authentication
-	auth := getClientAuth(w, r, s.Config.AllowClientSecretInParams)
+	auth := s.getClientAuth(w, r)
 	if auth == nil {
 		return nil
 	}
@@ -362,9 +355,27 @@ func (s *Server) handleRefreshTokenRequest(w *Response, r *http.Request) *Access
 	return ret
 }
 
+// getClientAuth retrieves the BasicAuth from the http.Request headers.
+func (s *Server) getClientAuth(w *Response, r *http.Request) *BasicAuth {
+	auth, err := s.checkBasicAuth(r)
+	if err != nil {
+		w.SetError(ErrInvalidRequest)
+		w.InternalError = err
+		return nil
+	}
+
+	if auth == nil {
+		w.SetError(ErrInvalidRequest)
+		w.InternalError = errors.New("client authentication not sent")
+		return nil
+	}
+
+	return auth
+}
+
 func (s *Server) handlePasswordRequest(w *Response, r *http.Request) *AccessRequest {
-	// get client authentication
-	auth := getClientAuth(w, r, s.Config.AllowClientSecretInParams)
+	// get client auth
+	auth := s.getClientAuth(w, r)
 	if auth == nil {
 		return nil
 	}
@@ -399,7 +410,7 @@ func (s *Server) handlePasswordRequest(w *Response, r *http.Request) *AccessRequ
 
 func (s *Server) handleClientCredentialsRequest(w *Response, r *http.Request) *AccessRequest {
 	// get client authentication
-	auth := getClientAuth(w, r, s.Config.AllowClientSecretInParams)
+	auth := s.getClientAuth(w, r)
 	if auth == nil {
 		return nil
 	}
@@ -426,7 +437,7 @@ func (s *Server) handleClientCredentialsRequest(w *Response, r *http.Request) *A
 
 func (s *Server) handleAssertionRequest(w *Response, r *http.Request) *AccessRequest {
 	// get client authentication
-	auth := getClientAuth(w, r, s.Config.AllowClientSecretInParams)
+	auth := s.getClientAuth(w, r)
 	if auth == nil {
 		return nil
 	}

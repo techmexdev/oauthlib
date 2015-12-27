@@ -22,8 +22,6 @@ func main() {
 		oauthlib.ClientCredentialsGrant,
 		oauthlib.AssertionGrant,
 	}
-	sconfig.AllowGetAccessRequest = true
-	sconfig.AllowClientSecretInParams = true
 	server := oauthlib.NewServer(sconfig, oauthlib.NewTestStorage(nil))
 
 	// Authorization code endpoint
