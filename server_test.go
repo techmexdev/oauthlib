@@ -6,6 +6,12 @@ import (
 	"testing"
 )
 
+const (
+	badAuthValue        = "Digest XHHHHHHH"
+	goodAuthValue       = "Basic dGVzdDp0ZXN0"
+	goodBearerAuthValue = "Bearer BGFVTDUJDp0ZXN0"
+)
+
 func TestGetClientAuth(t *testing.T) {
 	urlWithSecret, _ := url.Parse("http://host.tld/path?client_id=xxx&client_secret=yyy")
 	urlWithEmptySecret, _ := url.Parse("http://host.tld/path?client_id=xxx&client_secret=")

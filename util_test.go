@@ -8,12 +8,6 @@ import (
 	"testing"
 )
 
-const (
-	badAuthValue        = "Digest XHHHHHHH"
-	goodAuthValue       = "Basic dGVzdDp0ZXN0"
-	goodBearerAuthValue = "Bearer BGFVTDUJDp0ZXN0"
-)
-
 func TestResponseJSON(t *testing.T) {
 	w := httptest.NewRecorder()
 
