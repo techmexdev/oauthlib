@@ -139,7 +139,8 @@ func (s *Server) HandleAuthorizeRequest(w *Response, r *http.Request) *Authorize
 		return nil
 	}
 
-	w.SetRedirect(ret.RedirectURI)
+	w.ResponseType = REDIRECT
+	w.URL = ret.RedirectURI
 
 	responseType := r.Form.Get("response_type")
 	if s.Config.isAuthorizeRequestTypeAllowed(responseType) {
@@ -167,8 +168,9 @@ func (s *Server) FinishAuthorizeRequest(w *Response, r *http.Request, ar *Author
 		return
 	}
 
-	// force redirect response
-	w.SetRedirect(ar.RedirectURI)
+	// set redirect response
+	w.ResponseType = REDIRECT
+	w.URL = ar.RedirectURI
 
 	if ar.Authorized {
 		if ar.Type == "token" {

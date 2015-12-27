@@ -83,13 +83,6 @@ func (r *Response) SetError(e *ResponseError, state ...string) {
 	}
 }
 
-// SetRedirect changes the response to redirect to the given url.
-func (r *Response) SetRedirect(url string) {
-	// set redirect parameters
-	r.ResponseType = REDIRECT
-	r.URL = url
-}
-
 // GetRedirectURL returns the redirect url with all query string parameters.
 func (r *Response) GetRedirectURL() (string, error) {
 	if r.ResponseType != REDIRECT {

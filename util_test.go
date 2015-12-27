@@ -219,7 +219,8 @@ func TestRedirectResponseJSON(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	r := NewResponse(NewTestStorage(t))
-	r.SetRedirect("http://localhost:14000")
+	r.ResponseType = REDIRECT
+	r.URL = "http://localhost:14000"
 
 	err := WriteJSON(w, r)
 	if err != nil {
