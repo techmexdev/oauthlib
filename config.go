@@ -14,7 +14,7 @@ type Config struct {
 	TokenType string
 
 	// List of allowed authorize types ("code" or "token" only)
-	AllowedAuthReqTypes []string
+	AllowedAuthRequestTypes []string
 
 	// List of allowed access types (only AuthorizationCodeGrant by default)
 	AllowedGrantTypes []GrantType
@@ -28,10 +28,10 @@ type Config struct {
 	RedirectURISeparator string
 }
 
-// isAuthReqTypeAllowed determines if the passed AuthorizedRequestType
-// is in the Config.AllowedAuthReqTypes
-func (c Config) isAuthReqTypeAllowed(at string) bool {
-	for _, k := range c.AllowedAuthReqTypes {
+// isAuthRequestTypeAllowed determines if the passed AuthorizedRequestType
+// is in the Config.AllowedAuthRequestTypes
+func (c Config) isAuthRequestTypeAllowed(at string) bool {
+	for _, k := range c.AllowedAuthRequestTypes {
 		if k == at {
 			return true
 		}
@@ -56,7 +56,7 @@ func NewConfig() *Config {
 		AuthorizationExpiration: 250,
 		AccessExpiration:        3600,
 		TokenType:               "Bearer",
-		AllowedAuthReqTypes:     []string{"code"},
+		AllowedAuthRequestTypes: []string{"code"},
 		AllowedGrantTypes:       []GrantType{AuthorizationCodeGrant},
 		HttpStatusCode:          http.StatusOK,
 	}

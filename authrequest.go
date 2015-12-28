@@ -6,10 +6,10 @@ import (
 	"time"
 )
 
-// AuthReq represents the authorize request information, normally sent to "/auth" on the server.
+// AuthRequest represents the authorize request information, normally sent to "/auth" on the server.
 //
 // (this corresponds in oauth2.Endpoint.AuthURL)
-type AuthReq struct {
+type AuthRequest struct {
 	// Type is the type of the authorize request.
 	Type string
 
@@ -87,9 +87,9 @@ type AuthorizeTokenGen interface {
 	GenerateAuthorizeToken(data *AuthorizeData) (string, error)
 }
 
-// HandleAuthReq is the main http.HandlerFunc for handling
+// HandleAuthRequest is the main http.HandlerFunc for handling
 // authorization requests.
-func (s *Server) HandleAuthReq(w *Response, r *http.Request) *AuthReq {
+func (s *Server) HandleAuthRequest(w *Response, r *http.Request) *AuthRequest {
 	err := r.ParseForm()
 	if err != nil {
 		w.SetError(ErrInvalidRequest)
@@ -105,7 +105,7 @@ func (s *Server) HandleAuthReq(w *Response, r *http.Request) *AuthReq {
 		return nil
 	}
 
-	ret := &AuthReq{
+	ret := &AuthRequest{
 		State:       r.Form.Get("state"),
 		Scope:       r.Form.Get("scope"),
 		RedirectURI: unescapedURI,
@@ -145,7 +145,7 @@ func (s *Server) HandleAuthReq(w *Response, r *http.Request) *AuthReq {
 	w.URL = ret.RedirectURI
 
 	responseType := r.Form.Get("response_type")
-	if s.Config.isAuthReqTypeAllowed(responseType) {
+	if s.Config.isAuthRequestTypeAllowed(responseType) {
 		switch responseType {
 		case "code":
 			ret.Type = "code"
@@ -163,8 +163,8 @@ func (s *Server) HandleAuthReq(w *Response, r *http.Request) *AuthReq {
 	return nil
 }
 
-// FinishAuthReq finishes the authorize request.
-func (s *Server) FinishAuthReq(w *Response, r *http.Request, ar *AuthReq) {
+// FinishAuthRequest finishes the authorize request.
+func (s *Server) FinishAuthRequest(w *Response, r *http.Request, ar *AuthRequest) {
 	// don't process if is already an error
 	if w.IsError {
 		return
@@ -179,7 +179,7 @@ func (s *Server) FinishAuthReq(w *Response, r *http.Request, ar *AuthReq) {
 			w.RedirectInFragment = true
 
 			// generate token directly
-			ret := &TokenReq{
+			ret := &TokenRequest{
 				GrantType:       ImplicitGrant,
 				Code:            "",
 				Client:          ar.Client,
@@ -191,7 +191,7 @@ func (s *Server) FinishAuthReq(w *Response, r *http.Request, ar *AuthReq) {
 				UserData:        ar.UserData,
 			}
 
-			s.FinishTokenReq(w, r, ret)
+			s.FinishTokenRequest(w, r, ret)
 			if ar.State != "" && w.InternalError == nil {
 				w.Output["state"] = ar.State
 			}

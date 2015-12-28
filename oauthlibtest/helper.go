@@ -10,7 +10,7 @@ import (
 	"github.com/knq/oauthlib"
 )
 
-func HandleLoginPage(ar *oauthlib.AuthReq, w http.ResponseWriter, r *http.Request) bool {
+func HandleLoginPage(ar *oauthlib.AuthRequest, w http.ResponseWriter, r *http.Request) bool {
 	r.ParseForm()
 	if r.Method == "POST" && r.Form.Get("login") == "test" && r.Form.Get("password") == "test" {
 		return true

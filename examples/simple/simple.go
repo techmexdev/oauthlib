@@ -17,12 +17,12 @@ func main() {
 	http.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
 		resp := server.NewResponse()
 
-		if ar := server.HandleAuthReq(resp, r); ar != nil {
+		if ar := server.HandleAuthRequest(resp, r); ar != nil {
 			if !oauthlibtest.HandleLoginPage(ar, w, r) {
 				return
 			}
 			ar.Authorized = true
-			server.FinishAuthReq(resp, r, ar)
+			server.FinishAuthRequest(resp, r, ar)
 		}
 		if resp.IsError && resp.InternalError != nil {
 			fmt.Printf("ERROR: %s\n", resp.InternalError)
@@ -34,9 +34,9 @@ func main() {
 	http.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
 		resp := server.NewResponse()
 
-		if tr := server.HandleTokenReq(resp, r); tr != nil {
+		if tr := server.HandleTokenRequest(resp, r); tr != nil {
 			tr.Authorized = true
-			server.FinishTokenReq(resp, r, tr)
+			server.FinishTokenRequest(resp, r, tr)
 		}
 		if resp.IsError && resp.InternalError != nil {
 			fmt.Printf("ERROR: %s\n", resp.InternalError)
@@ -48,8 +48,8 @@ func main() {
 	http.HandleFunc("/info", func(w http.ResponseWriter, r *http.Request) {
 		resp := server.NewResponse()
 
-		if ir := server.HandleInfoReq(resp, r); ir != nil {
-			server.FinishInfoReq(resp, r, ir)
+		if ir := server.HandleInfoRequest(resp, r); ir != nil {
+			server.FinishInfoRequest(resp, r, ir)
 		}
 		oauthlib.WriteJSON(w, resp)
 	})
