@@ -2,8 +2,7 @@
 
 Package oauthlib is a [Golang](https://golang.org/project) oauth2 server
 library. The library attempts to follow as many Go idioms as possible, and be
-compliant with the Oauth2.0 spec as specified in [RFC 6749](http://tools.ietf.org/html/rfc6749) 
-and in the [IETF specs](http://tools.ietf.org/html/draft-ietf-oauth-v2-10).
+compliant with the Oauth2.0 spec as specified in [RFC 6749](http://tools.ietf.org/html/rfc6749).
 
 The library handles the majority of the specification, such as authorization
 token endpoints, authorization codes, access grants such as implicit, and
