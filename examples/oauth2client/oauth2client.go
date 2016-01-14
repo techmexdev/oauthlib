@@ -6,8 +6,8 @@ import (
 
 	"golang.org/x/oauth2"
 
-	"github.com/knq/oauthlib"
-	"github.com/knq/oauthlib/oauthlibtest"
+	"github.com/kenshaw/oauthlib"
+	"github.com/kenshaw/oauthlib/oauthlibtest"
 )
 
 func main() {

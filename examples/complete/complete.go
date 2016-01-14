@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/knq/oauthlib"
-	"github.com/knq/oauthlib/oauthlibtest"
+	"github.com/kenshaw/oauthlib"
+	"github.com/kenshaw/oauthlib/oauthlibtest"
 )
 
 func main() {

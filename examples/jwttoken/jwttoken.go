@@ -10,8 +10,8 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
-	"github.com/knq/oauthlib"
-	"github.com/knq/oauthlib/oauthlibtest"
+	"github.com/kenshaw/oauthlib"
+	"github.com/kenshaw/oauthlib/oauthlibtest"
 )
 
 // JWT access token generator

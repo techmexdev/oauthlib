@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/knq/oauthlib"
+	"github.com/kenshaw/oauthlib"
 )
 
 func HandleLoginPage(ar *oauthlib.AuthRequest, w http.ResponseWriter, r *http.Request) bool {
