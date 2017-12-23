@@ -4,7 +4,7 @@ This project has been abandoned very early in to the rewrite, as it was decided
 to completely write a new, more secure and correct OAuth2.0 implementation for
 Golang from scratch. This is left here as a reference for others, and for myself.
 
-Please see [github.com/knq/oauth](https://github.com/knq/oauth) for a
+Please see [https://github.com/knq/oauthmw](https://github.com/knq/oauthmw) for a
 significantly better implementation and was written from the ground up.
 
 # About oauthlib [![Build Status](https://travis-ci.org/kenshaw/oauthlib.svg)](https://travis-ci.org/kenshaw/oauthlib) [![Coverage Status](https://coveralls.io/repos/kenshaw/oauthlib/badge.svg?branch=master&service=github)](https://coveralls.io/github/kenshaw/oauthlib?branch=master) #
